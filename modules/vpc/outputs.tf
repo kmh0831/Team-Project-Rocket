@@ -37,8 +37,3 @@ output "public_subnet_ids" {
   description = "List of public subnet IDs for the EKS VPC"
   value       = [for s in aws_subnet.public : s.id]
 }
-
-output "db_private_subnet_ids" {
-  description = "List of private subnet IDs for the DB VPC"
-  value       = [for s in aws_subnet.db_private : s.id]
-}
