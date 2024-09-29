@@ -1,13 +1,13 @@
 # modules/bastion/main.tf
-
-# Bastion 인스턴스를 위한 리소스
 resource "aws_instance" "bastion" {
   ami                    = var.bastion_ami
   instance_type          = var.bastion_instance_type
   subnet_id              = var.bastion_subnet_id
-  private_ip             = var.bastion_instance_private_ip
   vpc_security_group_ids = [var.security_group_id]
   key_name               = var.key_name
+
+  # bastion_instance_private_ip가 있을 때만 IP를 할당
+  private_ip = var.bastion_instance_private_ip != "" ? var.bastion_instance_private_ip : null
 
   tags = {
     Name = "Bastion-Host"

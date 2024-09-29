@@ -5,7 +5,7 @@ resource "aws_instance" "nat" {
   ami                    = var.nat_ami
   instance_type          = var.nat_instance_type
   subnet_id              = element(var.nat_subnet_ids, count.index)
-  private_ip             = element(var.nat_instance_private_ips, count.index)
+  private_ip             = length(var.nat_instance_private_ips) > 0 ? element(var.nat_instance_private_ips, count.index) : null
   vpc_security_group_ids = [var.security_group_id]
   source_dest_check      = false
   key_name               = var.key_name
