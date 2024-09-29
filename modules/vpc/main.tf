@@ -15,10 +15,10 @@ resource "aws_subnet" "public" {
 
   vpc_id            = aws_vpc.this[split("-", each.key)[0]].id
   cidr_block        = each.value
-  availability_zone = var.vpc_config[split("-", each.key)[0]].availability_zones[count.index]
+  availability_zone = var.vpc_config[split("-", each.key)[0]].availability_zones[each.key]
 
   tags = {
-    Name = "${split("-", each.key)[0]}-Public-Subnet-${count.index + 1}"
+    Name = "${split("-", each.key)[0]}-Public-Subnet-${each.key}"
   }
 }
 
@@ -27,10 +27,10 @@ resource "aws_subnet" "private" {
 
   vpc_id            = aws_vpc.this[split("-", each.key)[0]].id
   cidr_block        = each.value
-  availability_zone = var.vpc_config[split("-", each.key)[0]].availability_zones[count.index]
+  availability_zone = var.vpc_config[split("-", each.key)[0]].availability_zones[each.key]
 
   tags = {
-    Name = "${split("-", each.key)[0]}-Private-Subnet-${count.index + 1}"
+    Name = "${split("-", each.key)[0]}-Private-Subnet-${each.key}"
   }
 }
 
