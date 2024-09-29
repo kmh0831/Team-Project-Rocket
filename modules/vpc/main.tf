@@ -1,5 +1,3 @@
-# modules/vpc/main.tf
-
 resource "aws_vpc" "this" {
   for_each = var.vpc_config
 
@@ -13,26 +11,26 @@ resource "aws_vpc" "this" {
 }
 
 resource "aws_subnet" "public" {
-  for_each = { for k, v in var.vpc_config : k => v.public_subnets }
+  for_each = { for k, v in var.vpc_config : k => range(length(v.public_subnets)) }
 
   vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = element(each.value, count.index)
-  availability_zone = var.vpc_config[each.key].availability_zones[count.index]
+  cidr_block        = var.vpc_config[each.key].public_subnets[each.value]
+  availability_zone = var.vpc_config[each.key].availability_zones[each.value]
 
   tags = {
-    Name = "${each.key}-Public-Subnet-${count.index + 1}"
+    Name = "${each.key}-Public-Subnet-${each.value + 1}"
   }
 }
 
 resource "aws_subnet" "private" {
-  for_each = { for k, v in var.vpc_config : k => v.private_subnets }
+  for_each = { for k, v in var.vpc_config : k => range(length(v.private_subnets)) }
 
   vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = element(each.value, count.index)
-  availability_zone = var.vpc_config[each.key].availability_zones[count.index]
+  cidr_block        = var.vpc_config[each.key].private_subnets[each.value]
+  availability_zone = var.vpc_config[each.key].availability_zones[each.value]
 
   tags = {
-    Name = "${each.key}-Private-Subnet-${count.index + 1}"
+    Name = "${each.key}-Private-Subnet-${each.value + 1}"
   }
 }
 
@@ -64,6 +62,6 @@ resource "aws_route_table" "public" {
 resource "aws_route_table_association" "public" {
   for_each = aws_subnet.public
 
-  subnet_id      = each.value.id
+  subnet_id      = aws_subnet.public[each.key].id
   route_table_id = aws_route_table.public[each.key].id
 }

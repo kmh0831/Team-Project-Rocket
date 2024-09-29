@@ -75,9 +75,9 @@ module "eks" {
   desired_size       = var.eks_desired_size
   max_size           = var.eks_max_size
   min_size           = var.eks_min_size
-  eks_role_arn       = var.eks_role_arn
-  node_role_arn      = aws_iam_role.eks_node_role.arn  # IAM 역할 ARN 전달
-  security_group_ids = [module.security_groups.eks_cluster_sg_id, module.security_groups.eks_node_sg_id]  # 보안 그룹 전달
+  eks_role_arn       = module.eks_cluster_role.eks_cluster_role_arn
+  node_role_arn      = module.eks_node_role.eks_node_role_arn
+  security_group_ids = [module.security_groups.eks_cluster_sg_id, module.security_groups.eks_node_sg_id]
 }
 
 # RDS 모듈 호출
