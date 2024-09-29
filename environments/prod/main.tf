@@ -37,16 +37,16 @@ module "security_groups" {
   db_allowed_cidr    = var.eks_vpc_cidr_block  # RDS에서 접근 가능한 EKS CIDR
 }
 
-# NAT 인스턴스 모듈 호출
+# NAT 인스턴스 모듈 호출 시 서브넷을 VPC의 output 값으로 설정
 module "nat_instance" {
   source                  = "../../modules/nat"
-  vpc_id                  = module.vpc.eks_vpc_id  # EKS VPC ID 참조
-  nat_subnet_ids          = module.vpc.eks_public_subnet_ids  # EKS 퍼블릭 서브넷 참조
+  vpc_id                  = module.vpc.vpc_id  # VPC ID 참조
+  nat_subnet_ids          = module.vpc.public_subnet_ids  # 생성된 퍼블릭 서브넷 참조
   nat_instance_private_ips = var.nat_instance_private_ips
   nat_ami                 = var.nat_ami
   nat_instance_type       = var.nat_instance_type
   key_name                = var.key_name
-  security_group_id       = module.security_groups.nat_sg_id  # 보안 그룹 전달
+  security_group_id       = module.security_groups.nat_sg_id
 }
 
 # Bastion 호스트 모듈 호출
