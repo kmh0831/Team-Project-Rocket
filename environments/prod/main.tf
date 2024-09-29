@@ -6,21 +6,7 @@ provider "aws" {
 module "vpc" {
   source = "../../modules/vpc"
 
-  vpc_config = {
-    "EKS-vpc" = {
-      cidr_block = var.eks_vpc_cidr_block
-      availability_zones = [var.availability_zone_a, var.availability_zone_b]
-      public_subnets = var.eks_public_subnets
-      private_subnets = var.eks_private_subnets
-    }
-    "DB-vpc" = {
-      cidr_block = var.db_vpc_cidr_block
-      availability_zones = [var.availability_zone_a, var.availability_zone_b]
-      public_subnets = []
-      private_subnets = var.db_private_subnets
-    }
-  }
-
+  vpc_config = var.vpc_config  # var.vpc_config을 직접 참조하도록 수정
   enable_dns_support   = var.enable_dns_support
   enable_dns_hostnames = var.enable_dns_hostnames
   route_cidr_block     = var.route_cidr_block
@@ -40,13 +26,13 @@ module "security_groups" {
 # NAT 인스턴스 모듈 호출 시 서브넷을 VPC의 output 값으로 설정
 module "nat_instance" {
   source                  = "../../modules/nat"
-  vpc_id                  = module.vpc.eks_vpc_id  # EKS VPC ID 참조
-  nat_subnet_ids          = module.vpc.eks_public_subnet_ids  # 생성된 퍼블릭 서브넷 참조
+  vpc_id                  = module.vpc.eks_vpc_id
+  nat_subnet_ids          = module.vpc.eks_public_subnet_ids
   nat_instance_private_ips = var.nat_instance_private_ips
   nat_ami                 = var.nat_ami
   nat_instance_type       = var.nat_instance_type
   key_name                = var.key_name
-  security_group_id       = module.security_groups.nat_sg_id  # 보안 그룹 전달
+  security_group_id       = module.security_groups.nat_sg_id  # 보안 그룹을 전달
 }
 
 # Bastion 호스트 모듈 호출
@@ -73,8 +59,8 @@ module "eks" {
   desired_size       = var.eks_desired_size
   max_size           = var.eks_max_size
   min_size           = var.eks_min_size
-  eks_role_arn       = module.eks.eks_cluster_role_arn  # 모듈에서 출력된 클러스터 IAM 역할 ARN 참조
-  node_role_arn      = module.eks.eks_node_role_arn     # 모듈에서 출력된 노드 IAM 역할 ARN 참조
+  eks_role_arn       = var.eks_role_arn  # var에서 직접 참조
+  node_role_arn      = var.eks_node_role_arn  # var에서 직접 참조
   security_group_ids = [module.security_groups.eks_cluster_sg_id, module.security_groups.eks_node_sg_id]
 }
 
