@@ -1,4 +1,29 @@
 # modules/security_groups/main.tf
+
+resource "aws_security_group" "nat_sg" {
+  name        = "NAT-SG"
+  vpc_id      = var.vpc_id
+  description = "Allow traffic to NAT instances"
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = var.nat_security_group_ingress_cidr_blocks
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = var.nat_security_group_egress_cidr_blocks
+  }
+
+  tags = {
+    Name = "NAT-SG"
+  }
+}
+
 # Bastion 호스트용 보안 그룹
 resource "aws_security_group" "bastion_sg" {
   name        = "bastion-sg"
