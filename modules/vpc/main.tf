@@ -12,13 +12,13 @@ resource "aws_vpc" "this" {
 
 resource "aws_subnet" "public" {
   for_each = {
-    for vpc_name, vpc_data in var.vpc_config : vpc_name => zipmap(vpc_data.availability_zones, vpc_data.public_subnets)
+    for vpc_name, vpc_data in var.vpc_config : vpc_name => zipmap(vpc_data.public_subnets, vpc_data.availability_zones)
     if length(vpc_data.public_subnets) > 0
   }
 
   vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = each.value[each.key]  # 각 가용 영역에 맞는 CIDR 블록을 참조
-  availability_zone = each.key              # 가용 영역을 참조
+  cidr_block        = each.key               # 각 CIDR 블록을 참조
+  availability_zone = each.value             # 각 가용 영역을 참조
 
   tags = {
     Name = "${each.key}-Public-Subnet"
@@ -27,13 +27,13 @@ resource "aws_subnet" "public" {
 
 resource "aws_subnet" "private" {
   for_each = {
-    for vpc_name, vpc_data in var.vpc_config : vpc_name => zipmap(vpc_data.availability_zones, vpc_data.private_subnets)
+    for vpc_name, vpc_data in var.vpc_config : vpc_name => zipmap(vpc_data.private_subnets, vpc_data.availability_zones)
     if length(vpc_data.private_subnets) > 0
   }
 
   vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = each.value[each.key]  # 각 가용 영역에 맞는 CIDR 블록을 참조
-  availability_zone = each.key              # 가용 영역을 참조
+  cidr_block        = each.key               # 각 CIDR 블록을 참조
+  availability_zone = each.value             # 각 가용 영역을 참조
 
   tags = {
     Name = "${each.key}-Private-Subnet"
