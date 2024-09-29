@@ -42,11 +42,20 @@ jobs:
       run: terraform init
       working-directory: ./environments/prod
 
-    - name: Terraform Plan
+    - name: Terraform Plan (VPC & Subnets)
+      run: terraform plan -input=false -target=module.vpc -target=module.subnets -out=tfplan-target -no-color
+      working-directory: ./environments/prod
+
+    - name: Terraform Apply (VPC & Subnets)
+      id: apply-target
+      run: terraform apply -input=false -auto-approve tfplan-target
+      working-directory: ./environments/prod
+
+    - name: Terraform Plan (Remaining Resources)
       run: terraform plan -input=false -out=tfplan -no-color
       working-directory: ./environments/prod
 
-    - name: Terraform Apply
+    - name: Terraform Apply (Remaining Resources)
       id: apply
       run: terraform apply -input=false -auto-approve tfplan
       working-directory: ./environments/prod
