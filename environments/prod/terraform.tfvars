@@ -1,5 +1,3 @@
-# environments/prod/terraform.tfvars
-
 aws_region                 = "ap-northeast-2"
 availability_zone_a         = "ap-northeast-2a"
 availability_zone_b         = "ap-northeast-2c"
@@ -38,3 +36,19 @@ db_multi_az                 = false
 db_username                 = "admin"
 db_password                 = "password!"
 peering_name                = "vpc-peering-eks-db"
+
+# 추가된 vpc_config 설정
+vpc_config = {
+  "EKS-vpc" = {
+    cidr_block         = "172.16.0.0/16"
+    public_subnets     = ["172.16.1.0/24", "172.16.2.0/24", "172.16.7.0/24"]
+    private_subnets    = ["172.16.3.0/24", "172.16.4.0/24", "172.16.5.0/24"]
+    availability_zones = ["ap-northeast-2a", "ap-northeast-2c"]
+  },
+  "DB-vpc" = {
+    cidr_block         = "192.168.0.0/16"
+    public_subnets     = []  # DB VPC에는 퍼블릭 서브넷이 없다고 가정
+    private_subnets    = ["192.168.1.0/24", "192.168.2.0/24"]
+    availability_zones = ["ap-northeast-2a", "ap-northeast-2c"]
+  }
+}

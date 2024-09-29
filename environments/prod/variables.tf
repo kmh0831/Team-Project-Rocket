@@ -151,3 +151,12 @@ variable "db_password" {
 variable "peering_name" {
   default = "vpc-peering-eks-db"
 }
+
+variable "vpc_config" {
+  type = map(object({
+    cidr_block           = string
+    availability_zones   = list(string)
+    public_subnets       = list(string)
+    private_subnets      = list(string)
+  }))
+}
