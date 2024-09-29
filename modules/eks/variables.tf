@@ -45,3 +45,15 @@ variable "security_group_ids" {
   description = "List of security group IDs to associate with the EKS cluster"
   type        = list(string)
 }
+
+# EKS 클러스터에 사용할 서브넷 IDs
+variable "cluster_subnet_ids" {
+  description = "List of subnet IDs to associate with the EKS cluster"
+  type        = list(string)
+}
+
+# EKS 노드 그룹에 사용할 서브넷 IDs
+variable "node_subnet_ids" {
+  description = "List of subnet IDs to associate with the EKS node group"
+  type        = list(string)
+}

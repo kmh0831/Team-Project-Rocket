@@ -62,19 +62,32 @@ module "bastion" {
   security_group_id       = module.security_groups.bastion_sg_id
 }
 
-# EKS 모듈 호출
 module "eks" {
   source             = "../../modules/eks"
   vpc_id             = module.vpc.eks_vpc_id
-  subnet_ids         = module.vpc.eks_private_subnet_ids
+
+  # 클러스터는 프라이빗 서브넷 C에 배포
+  cluster_subnet_ids = [element(var.eks_private_subnets, 2)]  # 프라이빗 서브넷 C
+
+  # 노드 그룹은 프라이빗 서브넷 A, B에 배포
+  node_subnet_ids    = [element(var.eks_private_subnets, 0), element(var.eks_private_subnets, 1)]  # 프라이빗 서브넷 A, B
+
+  # EKS 클러스터에서 subnet_ids도 필요하다면 아래처럼 설정
+  subnet_ids         = [element(var.eks_private_subnets, 2)]  # 서브넷 C는 클러스터용 서브넷
+
+  # EKS 클러스터 및 노드 그룹 관련 설정
   cluster_name       = var.cluster_name
   node_group_name    = var.node_group_name
   instance_types     = var.eks_instance_types
   desired_size       = var.eks_desired_size
   max_size           = var.eks_max_size
   min_size           = var.eks_min_size
-  eks_role_arn       = var.eks_role_arn  # var에서 직접 참조
-  node_role_arn      = var.eks_node_role_arn  # var에서 직접 참조
+
+  # IAM 역할 설정
+  eks_role_arn       = var.eks_role_arn
+  node_role_arn      = var.eks_node_role_arn
+
+  # 보안 그룹 설정
   security_group_ids = [module.security_groups.eks_cluster_sg_id, module.security_groups.eks_node_sg_id]
 }
 
