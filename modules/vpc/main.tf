@@ -10,33 +10,42 @@ resource "aws_vpc" "this" {
   }
 }
 
+# Public Subnets 생성
 resource "aws_subnet" "public" {
-  for_each = {
-    for vpc_name, vpc_data in var.vpc_config : vpc_name => zipmap(vpc_data.public_subnets, vpc_data.availability_zones)
-    if length(vpc_data.public_subnets) > 0
-  }
+  count = length(var.vpc_config["EKS-vpc"].public_subnets)
 
-  vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = each.key               # 각 CIDR 블록을 참조
-  availability_zone = each.value             # 각 가용 영역을 참조
+  vpc_id            = aws_vpc.this["EKS-vpc"].id
+  cidr_block        = var.vpc_config["EKS-vpc"].public_subnets[count.index]  # Public 서브넷
+  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[count.index]  # 각 서브넷에 해당하는 AZ
 
   tags = {
-    Name = "${each.key}-Public-Subnet"
+    Name = "EKS-vpc-Public-Subnet-${count.index + 1}"
   }
 }
 
+# Private Subnets 생성
 resource "aws_subnet" "private" {
-  for_each = {
-    for vpc_name, vpc_data in var.vpc_config : vpc_name => zipmap(vpc_data.private_subnets, vpc_data.availability_zones)
-    if length(vpc_data.private_subnets) > 0
-  }
+  count = length(var.vpc_config["EKS-vpc"].private_subnets)
 
-  vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = each.key               # 각 CIDR 블록을 참조
-  availability_zone = each.value             # 각 가용 영역을 참조
+  vpc_id            = aws_vpc.this["EKS-vpc"].id
+  cidr_block        = var.vpc_config["EKS-vpc"].private_subnets[count.index]  # Private 서브넷
+  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[count.index]  # 각 서브넷에 해당하는 AZ
 
   tags = {
-    Name = "${each.key}-Private-Subnet"
+    Name = "EKS-vpc-Private-Subnet-${count.index + 1}"
+  }
+}
+
+# DB VPC Subnets 생성 (Public 없음)
+resource "aws_subnet" "db_private" {
+  count = length(var.vpc_config["DB-vpc"].private_subnets)
+
+  vpc_id            = aws_vpc.this["DB-vpc"].id
+  cidr_block        = var.vpc_config["DB-vpc"].private_subnets[count.index]  # DB Private 서브넷
+  availability_zone = var.vpc_config["DB-vpc"].availability_zones[count.index]
+
+  tags = {
+    Name = "DB-vpc-Private-Subnet-${count.index + 1}"
   }
 }
 
