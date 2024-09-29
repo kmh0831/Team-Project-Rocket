@@ -43,13 +43,13 @@ vpc_config = {
     cidr_block         = "172.16.0.0/16"
     public_subnets     = ["172.16.1.0/24", "172.16.2.0/24", "172.16.7.0/24"]
     private_subnets    = ["172.16.3.0/24", "172.16.4.0/24", "172.16.5.0/24"]
-    availability_zones = ["ap-northeast-2a", "ap-northeast-2c"]
+    availability_zones = ["ap-northeast-2a", "ap-northeast-2c", "ap-northeast-2b"]  # 가용 영역 3개로 맞춤 
   },
   "DB-vpc" = {
     cidr_block         = "192.168.0.0/16"
     public_subnets     = []  # DB VPC에는 퍼블릭 서브넷이 없다고 가정
     private_subnets    = ["192.168.1.0/24", "192.168.2.0/24"]
-    availability_zones = ["ap-northeast-2a", "ap-northeast-2c"]
+    availability_zones = ["ap-northeast-2a", "ap-northeast-2c"]  # 여기는 그대로
   }
 }
 
