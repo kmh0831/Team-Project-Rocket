@@ -86,32 +86,58 @@ resource "aws_route_table_association" "public" {
 }
 
 # Private Route Table 생성 (각 프라이빗 서브넷이 NAT 인스턴스와 연결)
-resource "aws_route_table" "private" {
-  for_each = { for i, cidr in var.vpc_config["EKS-vpc"].private_subnets : i => cidr }
-
+resource "aws_route_table" "private_nat_1" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_instance.nat_instance[each.key].id  # 각 NAT 인스턴스와 연결
+    network_interface_id = module.nat.nat_instance_ids[0]  # NAT 인스턴스 1에 연결
   }
 
   tags = {
-    Name = "EKS-vpc-Private-RT-${each.key + 1}"
+    Name = "EKS-vpc-Private-RT-NAT-1"
   }
 }
 
-# Private Subnet Route Table Association
-resource "aws_route_table_association" "private" {
-  for_each = aws_subnet.private
+resource "aws_route_table" "private_nat_2" {
+  vpc_id = aws_vpc.this["EKS-vpc"].id
 
-  subnet_id      = each.value.id
-  route_table_id = aws_route_table.private[each.key].id
+  route {
+    cidr_block = "0.0.0.0/0"
+    network_interface_id = module.nat.nat_instance_ids[1]  # NAT 인스턴스 2에 연결
+  }
+
+  tags = {
+    Name = "EKS-vpc-Private-RT-NAT-2"
+  }
 }
 
-# Bastion 호스트 라우팅 설정 (EKS 프라이빗 서브넷 3)
-resource "aws_route" "bastion_route" {
-  route_table_id         = aws_route_table.private[2].id  # EKS Private Subnet 3에 대해 설정
-  destination_cidr_block = "0.0.0.0/0"
-  instance_id            = aws_instance.bastion_host.id
+# Bastion 호스트 라우팅 설정 (EKS 프라이빗 서브넷 3에 연결, NAT 역할)
+resource "aws_route_table" "private_bastion" {
+  vpc_id = aws_vpc.this["EKS-vpc"].id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    network_interface_id = aws_instance.bastion.id  # Bastion 호스트를 NAT 역할로 설정
+  }
+
+  tags = {
+    Name = "EKS-vpc-Private-RT-Bastion"
+  }
+}
+
+# Private Subnet Route Table Association (각 프라이빗 서브넷에 맞는 라우팅 테이블 연결)
+resource "aws_route_table_association" "private_nat_1_assoc" {
+  subnet_id      = aws_subnet.private[0].id
+  route_table_id = aws_route_table.private_nat_1.id
+}
+
+resource "aws_route_table_association" "private_nat_2_assoc" {
+  subnet_id      = aws_subnet.private[1].id
+  route_table_id = aws_route_table.private_nat_2.id
+}
+
+resource "aws_route_table_association" "private_bastion_assoc" {
+  subnet_id      = aws_subnet.private[2].id
+  route_table_id = aws_route_table.private_bastion.id
 }
