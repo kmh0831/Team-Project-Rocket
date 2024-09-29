@@ -11,26 +11,26 @@ resource "aws_vpc" "this" {
 }
 
 resource "aws_subnet" "public" {
-  for_each = { for k, v in var.vpc_config : "${k}-public" => v.public_subnets }
+  for_each = { for k, v in var.vpc_config : k => v.public_subnets }
 
-  vpc_id            = aws_vpc.this[split("-", each.key)[0]].id
-  cidr_block        = each.value
-  availability_zone = var.vpc_config[split("-", each.key)[0]].availability_zones[each.key]
+  vpc_id            = aws_vpc.this[each.key].id
+  cidr_block        = each.value[0]  # 인덱스 사용 없이 직접 참조
+  availability_zone = var.vpc_config[each.key].availability_zones[0]  # 첫 번째 AZ 참조
 
   tags = {
-    Name = "${split("-", each.key)[0]}-Public-Subnet-${each.key}"
+    Name = "${each.key}-Public-Subnet-1"
   }
 }
 
 resource "aws_subnet" "private" {
-  for_each = { for k, v in var.vpc_config : "${k}-private" => v.private_subnets }
+  for_each = { for k, v in var.vpc_config : k => v.private_subnets }
 
-  vpc_id            = aws_vpc.this[split("-", each.key)[0]].id
-  cidr_block        = each.value
-  availability_zone = var.vpc_config[split("-", each.key)[0]].availability_zones[each.key]
+  vpc_id            = aws_vpc.this[each.key].id
+  cidr_block        = each.value[0]  # 인덱스 사용 없이 직접 참조
+  availability_zone = var.vpc_config[each.key].availability_zones[0]  # 첫 번째 AZ 참조
 
   tags = {
-    Name = "${split("-", each.key)[0]}-Private-Subnet-${each.key}"
+    Name = "${each.key}-Private-Subnet-1"
   }
 }
 
@@ -63,5 +63,5 @@ resource "aws_route_table_association" "public" {
   for_each = aws_subnet.public
 
   subnet_id      = each.value.id
-  route_table_id = aws_route_table.public[split("-", each.key)[0]].id
+  route_table_id = aws_route_table.public[each.key].id
 }
