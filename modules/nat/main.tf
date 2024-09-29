@@ -1,5 +1,4 @@
-# modules/nat/main.tf
-
+# NAT Security Group
 resource "aws_security_group" "nat_sg" {
   name        = "NAT-SG"
   vpc_id      = var.vpc_id
@@ -24,15 +23,14 @@ resource "aws_security_group" "nat_sg" {
   }
 }
 
-# modules/nat/main.tf
-
+# NAT Instances
 resource "aws_instance" "nat" {
   count                  = length(var.nat_subnet_ids)
   ami                    = var.nat_ami
   instance_type          = var.nat_instance_type
   subnet_id              = element(var.nat_subnet_ids, count.index)
   private_ip             = element(var.nat_instance_private_ips, count.index)
-  vpc_security_group_ids = [var.security_group_id]  # 보안 그룹을 리스트 형태로 전달
+  vpc_security_group_ids = [aws_security_group.nat_sg.id]  # 보안 그룹을 aws_security_group 리소스에서 참조
   source_dest_check      = false
   key_name               = var.key_name
 
@@ -41,18 +39,19 @@ resource "aws_instance" "nat" {
   }
 }
 
+# Elastic IP for NAT
 resource "aws_eip" "nat_eip" {
-  for_each = aws_instance.nat
-
+  count  = length(aws_instance.nat)  # 인스턴스의 개수만큼 EIP 생성
   domain = "vpc"
 
   tags = {
-    Name = "Nat-EIP-${each.key + 1}"
+    Name = "Nat-EIP-${count.index + 1}"
   }
 }
 
+# Associate EIP with NAT instance
 resource "aws_eip_association" "nat_eip_assoc" {
-  for_each     = aws_instance.nat
-  instance_id  = each.value.id
-  allocation_id = aws_eip.nat_eip[each.key].id
+  count        = length(aws_instance.nat)
+  instance_id  = aws_instance.nat[count.index].id
+  allocation_id = aws_eip.nat_eip[count.index].id  # EIP와 NAT 인스턴스를 연동
 }
