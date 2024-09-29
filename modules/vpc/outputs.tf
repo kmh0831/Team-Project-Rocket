@@ -13,17 +13,17 @@ output "db_vpc_id" {
 # EKS 퍼블릭 서브넷 ID들 출력
 output "eks_public_subnet_ids" {
   description = "EKS Public Subnet IDs"
-  value       = aws_subnet.public[*].id  # aws_subnet.public 서브넷 리스트의 ID를 모두 출력
+  value       = aws_subnet.public_subnet[*].id  # 정의된 public 서브넷을 올바르게 참조
 }
 
 # EKS 프라이빗 서브넷 ID들 출력
 output "eks_private_subnet_ids" {
   description = "EKS Private Subnet IDs"
-  value       = aws_subnet.private[*].id  # aws_subnet.private 서브넷 리스트의 ID를 모두 출력
+  value       = aws_subnet.private_subnet[*].id  # 정의된 private 서브넷을 올바르게 참조
 }
 
 # DB 프라이빗 서브넷 ID들 출력
 output "db_private_subnet_ids" {
   description = "DB Private Subnet IDs"
-  value       = aws_subnet.private[*].id
+  value       = aws_subnet.private_subnet[*].id
 }
