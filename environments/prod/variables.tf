@@ -160,3 +160,17 @@ variable "vpc_config" {
     private_subnets      = list(string)
   }))
 }
+
+# NAT 보안 그룹을 위한 Ingress CIDR 블록
+variable "nat_security_group_ingress_cidr_blocks" {
+  description = "CIDR blocks allowed for ingress traffic in the NAT security group"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]  # 기본값으로 모든 트래픽 허용
+}
+
+# NAT 보안 그룹을 위한 Egress CIDR 블록
+variable "nat_security_group_egress_cidr_blocks" {
+  description = "CIDR blocks allowed for egress traffic in the NAT security group"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]  # 기본값으로 모든 트래픽 허용
+}

@@ -52,3 +52,7 @@ vpc_config = {
     availability_zones = ["ap-northeast-2a", "ap-northeast-2c"]
   }
 }
+
+# NAT 보안 그룹 설정
+nat_security_group_ingress_cidr_blocks = ["0.0.0.0/0"]
+nat_security_group_egress_cidr_blocks  = ["0.0.0.0/0"]
