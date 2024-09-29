@@ -6,16 +6,16 @@ provider "aws" {
 module "vpc" {
   source = "../../modules/vpc"
 
-  vpc_config = var.vpc_config
+  vpc_config            = var.vpc_config
+  enable_dns_support    = var.enable_dns_support
+  enable_dns_hostnames  = var.enable_dns_hostnames
+  route_cidr_block      = var.route_cidr_block
 
-  enable_dns_support   = var.enable_dns_support
-  enable_dns_hostnames = var.enable_dns_hostnames
-  route_cidr_block     = var.route_cidr_block
-
-  # NAT 인스턴스와 Bastion의 네트워크 인터페이스 전달
-  nat_instance_network_interface_ids = module.nat.nat_instance_network_interface_ids
-  bastion_primary_network_interface_id = module.bastion.bastion_primary_network_interface_id
+  # NAT 인스턴스와 Bastion 호스트의 네트워크 인터페이스 IDs 전달
+  nat_instance_network_interface_ids    = module.nat.nat_instance_network_interface_ids
+  bastion_primary_network_interface_id  = module.bastion.bastion_primary_network_interface_id
 }
+
 
 # 보안 그룹 모듈 호출
 module "security_groups" {
