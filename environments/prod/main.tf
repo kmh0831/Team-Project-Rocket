@@ -51,15 +51,15 @@ module "nat" {
 
 # Bastion 호스트 모듈
 module "bastion" {
-  source = "../../modules/bastion"
-  vpc_id = module.vpc.eks_vpc_id
-  bastion_subnet_id = element(module.vpc.eks_public_subnet_ids, 2)
+  source                  = "../../modules/bastion"
+  vpc_id                  = module.vpc.eks_vpc_id
+  bastion_subnet_id       = element(module.vpc.eks_public_subnet_ids, 1)
   bastion_instance_private_ip = var.bastion_instance_private_ip
-  bastion_ami = var.bastion_ami
-  bastion_instance_type = var.bastion_instance_type
-  key_name = var.key_name
-  allowed_ssh_cidr = var.allowed_ssh_cidr
-  security_group_id = module.security_groups.bastion_sg_id
+  bastion_ami             = var.bastion_ami
+  bastion_instance_type   = var.bastion_instance_type
+  key_name                = var.key_name
+  allowed_ssh_cidr        = var.allowed_ssh_cidr
+  security_group_id       = module.security_groups.bastion_sg_id
 }
 
 # EKS 모듈 호출
