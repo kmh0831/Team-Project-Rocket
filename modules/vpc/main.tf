@@ -1,3 +1,4 @@
+# VPC 생성
 resource "aws_vpc" "this" {
   for_each = var.vpc_config
 
@@ -12,43 +13,44 @@ resource "aws_vpc" "this" {
 
 # Public Subnets 생성
 resource "aws_subnet" "public" {
-  count = length(var.vpc_config["EKS-vpc"].public_subnets)
+  for_each = { for i, cidr in var.vpc_config["EKS-vpc"].public_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["EKS-vpc"].id
-  cidr_block        = var.vpc_config["EKS-vpc"].public_subnets[count.index]  # Public 서브넷
-  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[count.index]  # 각 서브넷에 해당하는 AZ
+  cidr_block        = each.value  # 각 Public 서브넷의 CIDR 블록
+  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]  # 각 서브넷에 해당하는 AZ
 
   tags = {
-    Name = "EKS-vpc-Public-Subnet-${count.index + 1}"
+    Name = "EKS-vpc-Public-Subnet-${each.key + 1}"
   }
 }
 
 # Private Subnets 생성
 resource "aws_subnet" "private" {
-  count = length(var.vpc_config["EKS-vpc"].private_subnets)
+  for_each = { for i, cidr in var.vpc_config["EKS-vpc"].private_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["EKS-vpc"].id
-  cidr_block        = var.vpc_config["EKS-vpc"].private_subnets[count.index]  # Private 서브넷
-  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[count.index]  # 각 서브넷에 해당하는 AZ
+  cidr_block        = each.value  # 각 Private 서브넷의 CIDR 블록
+  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]  # 각 서브넷에 해당하는 AZ
 
   tags = {
-    Name = "EKS-vpc-Private-Subnet-${count.index + 1}"
+    Name = "EKS-vpc-Private-Subnet-${each.key + 1}"
   }
 }
 
 # DB VPC Subnets 생성 (Public 없음)
 resource "aws_subnet" "db_private" {
-  count = length(var.vpc_config["DB-vpc"].private_subnets)
+  for_each = { for i, cidr in var.vpc_config["DB-vpc"].private_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["DB-vpc"].id
-  cidr_block        = var.vpc_config["DB-vpc"].private_subnets[count.index]  # DB Private 서브넷
-  availability_zone = var.vpc_config["DB-vpc"].availability_zones[count.index]
+  cidr_block        = each.value  # 각 Private 서브넷의 CIDR 블록
+  availability_zone = var.vpc_config["DB-vpc"].availability_zones[each.key]
 
   tags = {
-    Name = "DB-vpc-Private-Subnet-${count.index + 1}"
+    Name = "DB-vpc-Private-Subnet-${each.key + 1}"
   }
 }
 
+# Internet Gateway 생성
 resource "aws_internet_gateway" "this" {
   for_each = aws_vpc.this
 
@@ -59,6 +61,7 @@ resource "aws_internet_gateway" "this" {
   }
 }
 
+# Public Route Table 생성
 resource "aws_route_table" "public" {
   for_each = aws_vpc.this
 
@@ -74,9 +77,10 @@ resource "aws_route_table" "public" {
   }
 }
 
+# Public Subnet Route Table Association
 resource "aws_route_table_association" "public" {
   for_each = aws_subnet.public
 
   subnet_id      = each.value.id
-  route_table_id = aws_route_table.public[each.key].id
+  route_table_id = aws_route_table.public["EKS-vpc"].id  # EKS VPC에 대해 Public Route Table과 연결
 }
