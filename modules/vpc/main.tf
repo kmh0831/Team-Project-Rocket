@@ -17,8 +17,8 @@ resource "aws_subnet" "public" {
   }
 
   vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = each.value                        # 이 부분은 each.value 자체가 CIDR 블록을 가리키도록 수정
-  availability_zone = each.key                          # 각 가용 영역을 사용
+  cidr_block        = each.value[each.key]  # 이 부분은 가용 영역에 맞는 CIDR 블록을 가져옵니다
+  availability_zone = each.key              # 각 가용 영역을 분산
 
   tags = {
     Name = "${each.key}-Public-Subnet"
@@ -32,8 +32,8 @@ resource "aws_subnet" "private" {
   }
 
   vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = each.value                        # 이 부분도 each.value가 CIDR 블록을 가리킴
-  availability_zone = each.key                          # 각 가용 영역을 사용
+  cidr_block        = each.value[each.key]  # 각 가용 영역에 맞는 CIDR 블록을 가져옵니다
+  availability_zone = each.key              # 각 가용 영역을 분산
 
   tags = {
     Name = "${each.key}-Private-Subnet"
