@@ -24,3 +24,15 @@ variable "db_allowed_cidr" {
   description = "The CIDR block allowed to access the RDS"
   type        = string
 }
+
+variable "nat_security_group_ingress_cidr_blocks" {
+  description = "Ingress CIDR blocks for NAT instance security group"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
+variable "nat_security_group_egress_cidr_blocks" {
+  description = "Egress CIDR blocks for NAT instance security group"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}

@@ -32,7 +32,7 @@ module "nat_instance" {
   nat_ami                 = var.nat_ami
   nat_instance_type       = var.nat_instance_type
   key_name                = var.key_name
-  security_group_id       = module.security_groups.nat_sg_id  # 보안 그룹을 전달
+  security_group_id       = module.security_groups.nat_sg_id  # NAT 보안 그룹 전달
 }
 
 # Bastion 호스트 모듈 호출
