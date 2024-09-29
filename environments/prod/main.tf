@@ -64,7 +64,7 @@ module "bastion" {
 
 module "eks" {
   source             = "../../modules/eks"
-  vpc_id             = module.vpc.vpc_id
+  vpc_id             = module.vpc.eks_vpc_id
 
   # 클러스터는 프라이빗 서브넷 C에 배포
   cluster_subnet_ids = [element(module.vpc.private_subnet_ids, 2)]  # 프라이빗 서브넷 C
