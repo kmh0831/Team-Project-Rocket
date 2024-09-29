@@ -27,3 +27,13 @@ output "db_private_subnet_ids" {
   description = "DB Private Subnet IDs"
   value       = [for subnet in values(aws_subnet.db_private) : subnet.id]  # DB VPC의 private 서브넷을 참조
 }
+
+output "private_subnet_ids" {
+  description = "List of private subnet IDs"
+  value       = aws_subnet.private.*.id
+}
+
+output "public_subnet_ids" {
+  description = "List of public subnet IDs"
+  value       = aws_subnet.public.*.id
+}

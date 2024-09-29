@@ -64,7 +64,7 @@ module "bastion" {
 
 module "eks" {
   source             = "../../modules/eks"
-  vpc_id             = module.vpc.eks_vpc_id
+  vpc_id             = module.vpc.vpc_id
 
   # 클러스터는 프라이빗 서브넷 C에 배포
   cluster_subnet_ids = [element(module.vpc.private_subnet_ids, 2)]  # 프라이빗 서브넷 C
@@ -72,8 +72,8 @@ module "eks" {
   # 노드 그룹은 프라이빗 서브넷 A, B에 배포
   node_subnet_ids    = [element(module.vpc.private_subnet_ids, 0), element(module.vpc.private_subnet_ids, 1)]  # 프라이빗 서브넷 A, B
 
-  # EKS 클러스터용 subnet_ids 설정
-  subnet_ids         = [element(module.vpc.private_subnet_ids, 2)]  # 클러스터에 서브넷 C만 사용
+  # EKS 클러스터에서 subnet_ids도 필요하다면 아래처럼 설정
+  subnet_ids         = [element(module.vpc.private_subnet_ids, 2)]  # 서브넷 C는 클러스터용 서브넷
 
   # EKS 클러스터 및 노드 그룹 관련 설정
   cluster_name       = var.cluster_name
