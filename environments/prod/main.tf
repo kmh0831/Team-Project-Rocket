@@ -53,7 +53,7 @@ module "nat" {
 module "bastion" {
   source                  = "../../modules/bastion"
   vpc_id                  = module.vpc.eks_vpc_id
-  bastion_subnet_id       = element(module.vpc.eks_public_subnet_ids, 1)
+  bastion_subnet_id       = element(module.vpc.eks_public_subnet_ids, 2)
   bastion_instance_private_ip = var.bastion_instance_private_ip
   bastion_ami             = var.bastion_ami
   bastion_instance_type   = var.bastion_instance_type

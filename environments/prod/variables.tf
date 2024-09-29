@@ -1,158 +1,157 @@
-# environments/prod/variables.tf
-
 variable "aws_region" {
-  default = "ap-northeast-2"
+  description = "AWS region"
 }
 
 variable "availability_zone_a" {
-  default = "ap-northeast-2a"
+  description = "First availability zone"
 }
 
 variable "availability_zone_b" {
-  default = "ap-northeast-2c"
+  description = "Second availability zone"
 }
 
 variable "eks_vpc_cidr_block" {
-  default = "172.16.0.0/16"
+  description = "CIDR block for EKS VPC"
 }
 
 variable "db_vpc_cidr_block" {
-  default = "192.168.0.0/16"
+  description = "CIDR block for DB VPC"
 }
 
 variable "eks_public_subnets" {
-  default = ["172.16.1.0/24", "172.16.2.0/24", "172.16.7.0/24"]
+  description = "Public subnets for EKS VPC"
 }
 
 variable "eks_private_subnets" {
-  default = ["172.16.3.0/24", "172.16.4.0/24", "172.16.5.0/24"]
+  description = "Private subnets for EKS VPC"
 }
 
 variable "db_private_subnets" {
-  default = ["192.168.1.0/24", "192.168.2.0/24"]
+  description = "Private subnets for DB VPC"
 }
 
 variable "enable_dns_support" {
-  default = true
+  description = "Enable DNS support"
 }
 
 variable "enable_dns_hostnames" {
-  default = true
+  description = "Enable DNS hostnames"
 }
 
 variable "route_cidr_block" {
-  default = "0.0.0.0/0"
+  description = "Route CIDR block for internet gateway"
 }
 
 variable "nat_instance_private_ips" {
-  default = ["172.16.1.100", "172.16.2.100"]
+  description = "Private IPs for NAT instances"
 }
 
 variable "bastion_instance_private_ip" {
-  default = "172.16.7.100"
+  description = "Private IP for Bastion host"
 }
 
 variable "nat_ami" {
-  default = "ami-0c2d3e23e757b5d84"
+  description = "AMI for NAT instances"
 }
 
 variable "bastion_ami" {
-  default = "ami-0c2d3e23e757b5d84"
+  description = "AMI for Bastion host"
 }
 
 variable "key_name" {
-  default = "team_seoul"
+  description = "SSH key name"
 }
 
 variable "allowed_ssh_cidr" {
-  default = "0.0.0.0/0"
+  description = "CIDR block allowed for SSH access"
 }
 
 variable "nat_instance_type" {
-  default = "t3.micro"
+  description = "Instance type for NAT instances"
 }
 
 variable "bastion_instance_type" {
-  default = "t3.micro"
+  description = "Instance type for Bastion host"
 }
 
 variable "cluster_name" {
-  default = "rocket-eks-cluster"
+  description = "EKS cluster name"
 }
 
 variable "node_group_name" {
-  default = "App-node-group"
+  description = "EKS node group name"
 }
 
 variable "eks_instance_types" {
-  default = ["t3.small"]
+  description = "Instance types for EKS node group"
 }
 
 variable "eks_desired_size" {
-  default = 2
+  description = "Desired size for EKS node group"
 }
 
 variable "eks_max_size" {
-  default = 4
+  description = "Maximum size for EKS node group"
 }
 
 variable "eks_min_size" {
-  default = 2
+  description = "Minimum size for EKS node group"
 }
 
 variable "eks_role_arn" {
-  default = "arn:aws:iam::your-account-id:role/eks-cluster-role"
+  description = "Role ARN for EKS cluster"
 }
 
 variable "eks_node_role_arn" {
-  default = "arn:aws:iam::your-account-id:role/eks-node-role"
+  description = "Role ARN for EKS node"
 }
 
 variable "db_identifier" {
-  default = "prod-db-instance"
+  description = "RDS DB instance identifier"
 }
 
 variable "db_name" {
-  default = "prod_db"
+  description = "RDS DB name"
 }
 
 variable "db_engine" {
-  default = "mysql"
+  description = "RDS DB engine type"
 }
 
 variable "db_engine_version" {
-  default = "8.0"
+  description = "RDS DB engine version"
 }
 
 variable "db_instance_class" {
-  default = "db.t3.micro"
+  description = "RDS DB instance class"
 }
 
 variable "db_allocated_storage" {
-  default = 20
+  description = "Allocated storage for RDS DB"
 }
 
 variable "db_storage_type" {
-  default = "gp2"
+  description = "Storage type for RDS DB"
 }
 
 variable "db_multi_az" {
-  default = false
+  description = "Enable Multi-AZ for RDS"
 }
 
 variable "db_username" {
-  default = "admin"
+  description = "RDS DB username"
 }
 
 variable "db_password" {
-  default = "password!"
+  description = "RDS DB password"
 }
 
 variable "peering_name" {
-  default = "vpc-peering-eks-db"
+  description = "VPC peering connection name"
 }
 
 variable "vpc_config" {
+  description = "Configuration for VPCs"
   type = map(object({
     cidr_block           = string
     availability_zones   = list(string)
@@ -161,16 +160,12 @@ variable "vpc_config" {
   }))
 }
 
-# NAT 보안 그룹을 위한 Ingress CIDR 블록
 variable "nat_security_group_ingress_cidr_blocks" {
   description = "CIDR blocks allowed for ingress traffic in the NAT security group"
   type        = list(string)
-  default     = ["0.0.0.0/0"]  # 기본값으로 모든 트래픽 허용
 }
 
-# NAT 보안 그룹을 위한 Egress CIDR 블록
 variable "nat_security_group_egress_cidr_blocks" {
   description = "CIDR blocks allowed for egress traffic in the NAT security group"
   type        = list(string)
-  default     = ["0.0.0.0/0"]  # 기본값으로 모든 트래픽 허용
 }
