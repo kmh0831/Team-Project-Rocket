@@ -67,17 +67,17 @@ module "bastion_host" {
 # EKS 모듈 호출
 module "eks" {
   source             = "../../modules/eks"
-  vpc_id             = module.vpc.vpc_ids["EKS-vpc"]  # VPC ID 전달
+  vpc_id             = module.vpc.vpc_ids["EKS-vpc"]
+  subnet_ids         = module.vpc.private_subnet_ids["EKS-vpc"]
   cluster_name       = var.cluster_name
   node_group_name    = var.node_group_name
-  subnet_ids         = module.vpc.private_subnet_ids["EKS-vpc"]  # 프라이빗 서브넷 전달
-  security_group_ids = [module.security_groups.eks_cluster_sg_id, module.security_groups.eks_node_sg_id]
   instance_types     = var.eks_instance_types
   desired_size       = var.eks_desired_size
   max_size           = var.eks_max_size
   min_size           = var.eks_min_size
-  eks_role_arn       = aws_iam_role.eks_cluster_role.arn  # EKS 클러스터용 IAM 역할 ARN
-  node_role_arn      = aws_iam_role.eks_node_role.arn     # EKS 노드 그룹용 IAM 역할 ARN
+  eks_role_arn       = module.eks.eks_cluster_role_arn  # 모듈에서 출력된 클러스터 IAM 역할 ARN
+  node_role_arn      = module.eks.eks_node_role_arn     # 모듈에서 출력된 노드 IAM 역할 ARN
+  security_group_ids = [module.security_groups.eks_cluster_sg_id, module.security_groups.eks_node_sg_id]
 }
 
 # RDS 모듈 호출
