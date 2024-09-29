@@ -11,11 +11,11 @@ resource "aws_vpc" "this" {
 }
 
 resource "aws_subnet" "public" {
-  for_each = { for k, v in var.vpc_config : k => v.public_subnets }
+  for_each = { for k, v in var.vpc_config : k => v.public_subnets if length(v.public_subnets) > 0 }
 
   vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = each.value[0]  # 인덱스 사용 없이 직접 참조
-  availability_zone = var.vpc_config[each.key].availability_zones[0]  # 첫 번째 AZ 참조
+  cidr_block        = each.value[0]  # 첫 번째 서브넷을 직접 참조
+  availability_zone = var.vpc_config[each.key].availability_zones[0]
 
   tags = {
     Name = "${each.key}-Public-Subnet-1"
@@ -23,11 +23,11 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_subnet" "private" {
-  for_each = { for k, v in var.vpc_config : k => v.private_subnets }
+  for_each = { for k, v in var.vpc_config : k => v.private_subnets if length(v.private_subnets) > 0 }
 
   vpc_id            = aws_vpc.this[each.key].id
-  cidr_block        = each.value[0]  # 인덱스 사용 없이 직접 참조
-  availability_zone = var.vpc_config[each.key].availability_zones[0]  # 첫 번째 AZ 참조
+  cidr_block        = each.value[0]  # 첫 번째 서브넷을 직접 참조
+  availability_zone = var.vpc_config[each.key].availability_zones[0]
 
   tags = {
     Name = "${each.key}-Private-Subnet-1"
