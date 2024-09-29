@@ -16,11 +16,11 @@ module "vpc" {
 module "security_groups" {
   source = "../../modules/security_groups"
 
-  vpc_id             = module.vpc.eks_vpc_id  # EKS VPC ID 참조
+  vpc_id             = module.vpc.eks_vpc_id  # EKS VPC ID 전달
   vpc_cidr_block     = var.eks_vpc_cidr_block
-  db_vpc_id          = module.vpc.db_vpc_id   # DB VPC ID 참조
+  db_vpc_id          = module.vpc.db_vpc_id   # DB VPC ID 전달
   allowed_ssh_cidr   = var.allowed_ssh_cidr
-  db_allowed_cidr    = var.eks_vpc_cidr_block  # RDS에서 접근 가능한 EKS CIDR
+  db_allowed_cidr    = var.eks_vpc_cidr_block  # RDS 접근을 위한 CIDR
 }
 
 # NAT 인스턴스 모듈 호출 시 서브넷을 VPC의 output 값으로 설정
