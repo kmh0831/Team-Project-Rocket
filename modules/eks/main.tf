@@ -1,4 +1,4 @@
-# EKS 클러스터용 IAM 역할
+# EKS 클러스터용 IAM 역할 생성
 resource "aws_iam_role" "eks_cluster_role" {
   name = "eks-cluster-role"
 
