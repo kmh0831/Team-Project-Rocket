@@ -23,3 +23,15 @@ variable "route_cidr_block" {
   type    = string
   default = "0.0.0.0/0"
 }
+
+# modules/vpc/variables.tf
+
+variable "nat_instance_network_interface_ids" {
+  description = "NAT 인스턴스의 네트워크 인터페이스 ID 목록"
+  type        = list(string)
+}
+
+variable "bastion_primary_network_interface_id" {
+  description = "Bastion 호스트의 주요 네트워크 인터페이스 ID"
+  type        = string
+}

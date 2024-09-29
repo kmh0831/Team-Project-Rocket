@@ -6,10 +6,15 @@ provider "aws" {
 module "vpc" {
   source = "../../modules/vpc"
 
-  vpc_config = var.vpc_config  # var.vpc_config을 직접 참조하도록 수정
+  vpc_config = var.vpc_config
+
   enable_dns_support   = var.enable_dns_support
   enable_dns_hostnames = var.enable_dns_hostnames
   route_cidr_block     = var.route_cidr_block
+
+  # NAT 인스턴스와 Bastion의 네트워크 인터페이스 전달
+  nat_instance_network_interface_ids = module.nat.nat_instance_network_interface_ids
+  bastion_primary_network_interface_id = module.bastion.bastion_primary_network_interface_id
 }
 
 # 보안 그룹 모듈 호출
@@ -32,8 +37,8 @@ module "security_groups" {
   nat_security_group_egress_cidr_blocks  = var.nat_security_group_egress_cidr_blocks
 }
 
-# NAT 인스턴스 모듈 호출 시 서브넷을 VPC의 output 값으로 설정
-module "nat_instance" {
+# NAT 인스턴스 모듈
+module "nat" {
   source                  = "../../modules/nat"
   vpc_id                  = module.vpc.eks_vpc_id
   nat_subnet_ids          = module.vpc.eks_public_subnet_ids
@@ -41,20 +46,20 @@ module "nat_instance" {
   nat_ami                 = var.nat_ami
   nat_instance_type       = var.nat_instance_type
   key_name                = var.key_name
-  security_group_id       = module.security_groups.nat_sg_id  # NAT 보안 그룹 전달
+  security_group_id       = module.security_groups.nat_sg_id
 }
 
-# Bastion 호스트 모듈 호출
-module "bastion_host" {
-  source                  = "../../modules/bastion"
-  vpc_id                  = module.vpc.eks_vpc_id  # EKS VPC ID 참조
-  bastion_subnet_id       = element(module.vpc.eks_public_subnet_ids, 2)  # EKS 퍼블릭 서브넷 중 하나 참조
+# Bastion 호스트 모듈
+module "bastion" {
+  source = "../../modules/bastion"
+  vpc_id = module.vpc.eks_vpc_id
+  bastion_subnet_id = element(module.vpc.eks_public_subnet_ids, 2)
   bastion_instance_private_ip = var.bastion_instance_private_ip
-  bastion_ami             = var.bastion_ami
-  bastion_instance_type   = var.bastion_instance_type
-  key_name                = var.key_name
-  allowed_ssh_cidr        = var.allowed_ssh_cidr
-  security_group_id       = module.security_groups.bastion_sg_id  # 보안 그룹 참조
+  bastion_ami = var.bastion_ami
+  bastion_instance_type = var.bastion_instance_type
+  key_name = var.key_name
+  allowed_ssh_cidr = var.allowed_ssh_cidr
+  security_group_id = module.security_groups.bastion_sg_id
 }
 
 # EKS 모듈 호출

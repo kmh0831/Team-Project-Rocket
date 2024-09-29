@@ -85,13 +85,13 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public["EKS-vpc"].id  # EKS VPC에 대해 Public Route Table과 연결
 }
 
-# Private Route Table 생성 (각 프라이빗 서브넷이 NAT 인스턴스와 연결)
+# modules/vpc/main.tf 파일에서 NAT 인스턴스 및 Bastion 호스트 네트워크 인터페이스 ID 사용
 resource "aws_route_table" "private_nat_1" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = module.nat.nat_instance_ids[0]  # NAT 인스턴스 1에 연결
+    network_interface_id = var.nat_instance_network_interface_ids[0]  # NAT 인스턴스 1의 네트워크 인터페이스로 연결
   }
 
   tags = {
@@ -104,7 +104,7 @@ resource "aws_route_table" "private_nat_2" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = module.nat.nat_instance_ids[1]  # NAT 인스턴스 2에 연결
+    network_interface_id = var.nat_instance_network_interface_ids[1]  # NAT 인스턴스 2의 네트워크 인터페이스로 연결
   }
 
   tags = {
@@ -112,13 +112,12 @@ resource "aws_route_table" "private_nat_2" {
   }
 }
 
-# Bastion 호스트 라우팅 설정 (EKS 프라이빗 서브넷 3에 연결, NAT 역할)
 resource "aws_route_table" "private_bastion" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = aws_instance.bastion.id  # Bastion 호스트를 NAT 역할로 설정
+    network_interface_id = var.bastion_primary_network_interface_id  # Bastion 호스트의 네트워크 인터페이스로 연결
   }
 
   tags = {
