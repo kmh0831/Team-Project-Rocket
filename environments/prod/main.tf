@@ -92,10 +92,10 @@ module "eks" {
 
 # RDS 모듈 호출
 module "rds" {
-  source = "../../modules/rds"
-  
+  source                 = "../../modules/rds"
   vpc_security_group_ids = [module.security_groups.rds_sg_id]
   subnet_ids             = module.vpc.db_private_subnet_ids
+  vpc_id                 = module.vpc.db_vpc_id  # vpc_id 전달
 
   db_identifier          = var.db_identifier
   db_name                = var.db_name
@@ -107,11 +107,9 @@ module "rds" {
   multi_az               = var.multi_az
   username               = var.db_username
   password               = var.db_password
-
+  
   skip_final_snapshot     = var.skip_final_snapshot
   final_snapshot_identifier = var.final_snapshot_identifier
-
-  # 불필요한 db_private_subnet_ids, db_route_table_ids, vpc_id 제거
 }
 
 # VPC Peering 모듈 호출

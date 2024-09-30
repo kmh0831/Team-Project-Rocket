@@ -57,6 +57,6 @@ variable "final_snapshot_identifier" {
 }
 
 variable "vpc_id" {
-  description = "VPC ID where the RDS instance is deployed"
+  description = "The VPC ID in which RDS will be deployed"
   type        = string
 }
