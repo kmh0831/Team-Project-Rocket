@@ -37,10 +37,6 @@ output "public_subnet_ids" {
   value       = [for s in aws_subnet.public : s.id]
 }
 
-output "eks_route_table_ids" {
-  value = aws_route_table.eks_private[*].id
-}
-
 output "db_route_table_ids" {
   value = aws_route_table.db_private[*].id
 }

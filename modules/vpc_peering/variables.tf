@@ -25,11 +25,6 @@ variable "eks_private_subnet_ids" {
   type        = list(string)
 }
 
-variable "eks_route_table_ids" {
-  description = "List of route table IDs for the EKS private subnets"
-  type        = list(string)
-}
-
 variable "db_private_subnet_ids" {
   description = "List of private subnet IDs for the DB VPC"
   type        = list(string)
