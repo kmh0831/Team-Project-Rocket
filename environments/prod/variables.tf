@@ -177,3 +177,8 @@ variable "skip_final_snapshot" {
 variable "final_snapshot_identifier" {
   type    = string
 }
+
+variable "multi_az" {
+  description = "Specify whether the RDS instance is deployed in multiple availability zones"
+  type        = bool
+}

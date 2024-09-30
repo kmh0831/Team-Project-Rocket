@@ -14,9 +14,7 @@ module "vpc" {
   eks_vpc_cidr_block = var.eks_vpc_cidr_block
   db_vpc_cidr_block  = var.db_vpc_cidr_block
 
-  # NAT 인스턴스와 Bastion 호스트의 네트워크 인터페이스 ID 전달
-  nat_instance_network_interface_ids    = module.nat.nat_instance_network_interface_ids
-  bastion_primary_network_interface_id  = module.bastion.bastion_primary_network_interface_id
+  # nat_instance_network_interface_ids와 bastion_primary_network_interface_id 제거
 }
 
 # 보안 그룹 모듈 호출
@@ -78,10 +76,6 @@ module "eks" {
   # 필수 필드인 subnet_ids 추가 (클러스터가 사용하는 서브넷)
   subnet_ids         = module.vpc.eks_private_subnet_ids
 
-  # 새로 추가한 변수 전달
-  eks_private_subnet_ids = module.vpc.eks_private_subnet_ids
-  eks_route_table_ids    = module.vpc.eks_route_table_ids
-
   cluster_name       = var.cluster_name
   node_group_name    = var.node_group_name
   instance_types     = var.eks_instance_types
@@ -110,17 +104,14 @@ module "rds" {
   instance_class         = var.db_instance_class
   allocated_storage      = var.db_allocated_storage
   storage_type           = var.db_storage_type
-  multi_az               = var.db_multi_az
+  multi_az               = var.multi_az
   username               = var.db_username
   password               = var.db_password
 
-  # 새로 추가한 변수 전달
-  db_private_subnet_ids  = module.vpc.db_private_subnet_ids
-  db_route_table_ids     = module.vpc.db_route_table_ids
-  vpc_id                 = module.vpc.db_vpc_id
-
   skip_final_snapshot     = var.skip_final_snapshot
   final_snapshot_identifier = var.final_snapshot_identifier
+
+  # 불필요한 db_private_subnet_ids, db_route_table_ids, vpc_id 제거
 }
 
 # VPC Peering 모듈 호출
