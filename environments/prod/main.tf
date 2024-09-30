@@ -68,30 +68,25 @@ module "bastion" {
 
 # EKS 모듈 호출
 module "eks" {
-  source = "../../modules/eks"
+  source             = "../../modules/eks"
+  vpc_id             = module.vpc.eks_vpc_id
+  
+  # 클러스터와 노드 그룹에 각각 사용할 서브넷을 지정합니다.
+  cluster_subnet_ids = module.vpc.eks_private_subnet_ids  # 클러스터 서브넷
+  node_subnet_ids    = module.vpc.eks_private_subnet_ids  # 노드 그룹 서브넷
 
-  vpc_id = module.vpc.eks_vpc_id
+  # 필수 필드인 subnet_ids 추가 (클러스터가 사용하는 서브넷)
+  subnet_ids         = module.vpc.eks_private_subnet_ids
 
-  # EKS 클러스터에 사용할 서브넷 목록 (프라이빗 서브넷 사용)
-  subnet_ids = module.vpc.eks_private_subnet_ids
+  cluster_name       = var.cluster_name
+  node_group_name    = var.node_group_name
+  instance_types     = var.eks_instance_types
+  desired_size       = var.eks_desired_size
+  max_size           = var.eks_max_size
+  min_size           = var.eks_min_size
 
-  # 클러스터는 서로 다른 AZ에 배포된 프라이빗 서브넷 C, D에 배포
-  cluster_subnet_ids = [element(module.vpc.private_subnet_ids, 2), element(module.vpc.private_subnet_ids, 3)]  # 프라이빗 서브넷 C, D
-
-  # 노드 그룹은 서로 다른 AZ에 배포된 프라이빗 서브넷 A, B에 배포
-  node_subnet_ids = [element(module.vpc.private_subnet_ids, 0), element(module.vpc.private_subnet_ids, 1)]  # 프라이빗 서브넷 A, B
-
-  # EKS 클러스터 및 노드 그룹 관련 설정
-  cluster_name     = var.cluster_name
-  node_group_name  = var.node_group_name
-  instance_types   = var.eks_instance_types
-  desired_size     = var.eks_desired_size
-  max_size         = var.eks_max_size
-  min_size         = var.eks_min_size
-
-  # IAM 역할 설정
-  eks_role_arn     = var.eks_role_arn
-  node_role_arn    = var.eks_node_role_arn
+  eks_role_arn       = var.eks_role_arn
+  node_role_arn      = var.eks_node_role_arn
 
   # 보안 그룹 설정
   security_group_ids = [module.security_groups.eks_cluster_sg_id, module.security_groups.eks_node_sg_id]
@@ -100,9 +95,8 @@ module "eks" {
 # RDS 모듈 호출
 module "rds" {
   source = "../../modules/rds"
-
-  vpc_security_group_ids = [module.security_groups.rds_sg_id]  # 보안 그룹 참조
-  subnet_ids             = module.vpc.db_private_subnet_ids   # DB VPC의 프라이빗 서브넷 참조
+  vpc_security_group_ids = [module.security_groups.rds_sg_id]
+  subnet_ids = module.vpc.db_private_subnet_ids
 
   db_identifier = var.db_identifier
   db_name       = var.db_name
@@ -110,28 +104,25 @@ module "rds" {
   engine_version = var.db_engine_version
   instance_class = var.db_instance_class
   allocated_storage = var.db_allocated_storage
-  storage_type  = var.db_storage_type
-  multi_az      = var.db_multi_az
-  username      = var.db_username
-  password      = var.db_password
+  storage_type = var.db_storage_type
+  multi_az = var.db_multi_az
+  username = var.db_username
+  password = var.db_password
 
-  # 최종 스냅샷 옵션 추가
-  skip_final_snapshot      = var.skip_final_snapshot
+  skip_final_snapshot = var.skip_final_snapshot
   final_snapshot_identifier = var.final_snapshot_identifier
 }
 
-# VPC Peering 모듈 호출
+# VPC 피어링 모듈 호출
 module "vpc_peering" {
   source = "../../modules/vpc_peering"
 
-  vpc_id_a     = module.vpc.eks_vpc_id   # EKS VPC ID
-  vpc_id_b     = module.vpc.db_vpc_id    # DB VPC ID
-  peering_name = "eks-db-peering"
+  vpc_id_a       = module.vpc.eks_vpc_id
+  vpc_id_b       = module.vpc.db_vpc_id
+  peering_name   = "eks-db-peering"
+  eks_vpc_cidr   = var.eks_vpc_cidr_block
+  db_vpc_cidr    = var.db_vpc_cidr_block
 
-  eks_vpc_cidr = var.eks_vpc_cidr_block
-  db_vpc_cidr  = var.db_vpc_cidr_block
-
-  # 서브넷 및 라우팅 테이블 전달
   eks_private_subnet_ids = module.vpc.eks_private_subnet_ids
   db_private_subnet_ids  = module.vpc.db_private_subnet_ids
   eks_route_table_ids    = module.vpc.eks_route_table_ids
