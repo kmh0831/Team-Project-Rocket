@@ -85,34 +85,40 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public["EKS-vpc"].id
 }
 
-# NAT 인스턴스와 네트워크 인터페이스 직접 참조
-resource "aws_route_table" "private_nat" {
-  for_each = {
-    "private_nat_1" = aws_subnet.private["EKS-vpc-Private-Subnet-1"]
-    "private_nat_2" = aws_subnet.private["EKS-vpc-Private-Subnet-2"]
-  }
-
+# NAT 인스턴스 및 Bastion 호스트 네트워크 인터페이스 ID 사용
+resource "aws_route_table" "private_nat_1" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    # nat_instance_network_interface_ids 대신 NAT 인스턴스를 직접 참조
-    network_interface_id = aws_instance.nat[each.key == "private_nat_1" ? 0 : 1].network_interface[0].id
+    network_interface_id = var.nat_instance_network_interface_ids[0]
   }
 
   tags = {
-    Name = "EKS-vpc-Private-RT-NAT-${each.key}"
+    Name = "EKS-vpc-Private-RT-NAT-1"
   }
 }
 
-# Bastion 호스트 네트워크 인터페이스 직접 참조
+resource "aws_route_table" "private_nat_2" {
+  vpc_id = aws_vpc.this["EKS-vpc"].id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    network_interface_id = var.nat_instance_network_interface_ids[1]
+  }
+
+  tags = {
+    Name = "EKS-vpc-Private-RT-NAT-2"
+  }
+}
+
+# VPC 모듈에서 Bastion 인스턴스 네트워크 인터페이스 ID 사용
 resource "aws_route_table" "private_bastion" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    # bastion_primary_network_interface_id 대신 Bastion 인스턴스를 직접 참조
-    network_interface_id = aws_instance.bastion.network_interface[0].id
+    network_interface_id = module.bastion.bastion_network_interface_id  # Bastion 모듈에서 출력된 값을 사용
   }
 
   tags = {

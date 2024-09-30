@@ -24,18 +24,6 @@ variable "route_cidr_block" {
   default = "0.0.0.0/0"
 }
 
-# modules/vpc/variables.tf
-
-variable "nat_instance_network_interface_ids" {
-  description = "NAT 인스턴스의 네트워크 인터페이스 ID 목록"
-  type        = list(string)
-}
-
-variable "bastion_primary_network_interface_id" {
-  description = "Bastion 호스트의 주요 네트워크 인터페이스 ID"
-  type        = string
-}
-
 variable "eks_vpc_cidr_block" {
   description = "CIDR block for the EKS VPC"
   type        = string
@@ -43,5 +31,10 @@ variable "eks_vpc_cidr_block" {
 
 variable "db_vpc_cidr_block" {
   description = "CIDR block for the DB VPC"
+  type        = string
+}
+
+variable "bastion_primary_network_interface_id" {
+  description = "Bastion 호스트의 주요 네트워크 인터페이스 ID"
   type        = string
 }
