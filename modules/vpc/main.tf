@@ -126,30 +126,18 @@ resource "aws_route_table" "private_bastion" {
   }
 }
 
-# EKS 프라이빗 서브넷 A에서 DB 프라이빗 서브넷 A로 라우팅
-resource "aws_route" "eks_to_db_a" {
-  route_table_id         = aws_route_table.private_nat_1.id  # EKS 프라이빗 서브넷 A의 라우트 테이블 ID
-  destination_cidr_block = var.db_vpc_cidr_block  # DB VPC의 CIDR 블록
-  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 피어링 연결 ID
+resource "aws_route_table_association" "eks_private_subnet_nat" {
+  for_each = {
+    "EKS-vpc-Private-Subnet-1" = aws_subnet.private["EKS-vpc-Private-Subnet-1"]
+    "EKS-vpc-Private-Subnet-2" = aws_subnet.private["EKS-vpc-Private-Subnet-2"]
+    "EKS-vpc-Private-Subnet-3" = aws_subnet.private["EKS-vpc-Private-Subnet-3"]
+  }
+
+  subnet_id = each.value.id
+  route_table_id = aws_route_table.private_nat.id
 }
 
-# EKS 프라이빗 서브넷 B에서 DB 프라이빗 서브넷 B로 라우팅
-resource "aws_route" "eks_to_db_b" {
-  route_table_id         = aws_route_table.private_nat_2.id  # EKS 프라이빗 서브넷 B의 라우트 테이블 ID
-  destination_cidr_block = var.db_vpc_cidr_block  # DB VPC의 CIDR 블록
-  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 피어링 연결 ID
-}
-
-# DB 프라이빗 서브넷 A에서 EKS 프라이빗 서브넷 A로 라우팅
-resource "aws_route" "db_to_eks_a" {
-  route_table_id         = aws_route_table.db_private[0].id  # DB 프라이빗 서브넷 A의 라우트 테이블 ID
-  destination_cidr_block = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
-  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 피어링 연결 ID
-}
-
-# DB 프라이빗 서브넷 B에서 EKS 프라이빗 서브넷 B로 라우팅
-resource "aws_route" "db_to_eks_b" {
-  route_table_id         = aws_route_table.db_private[1].id  # DB 프라이빗 서브넷 B의 라우트 테이블 ID
-  destination_cidr_block = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
-  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 피어링 연결 ID
+resource "aws_route_table_association" "eks_private_subnet_bastion" {
+  subnet_id      = aws_subnet.private["EKS-vpc-Private-Subnet-3"].id
+  route_table_id = aws_route_table.private_bastion.id
 }

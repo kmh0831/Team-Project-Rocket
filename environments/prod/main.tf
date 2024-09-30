@@ -113,7 +113,7 @@ module "rds" {
   final_snapshot_identifier = var.final_snapshot_identifier
 }
 
-# VPC 피어링 모듈 호출
+# VPC Peering 모듈 호출
 module "vpc_peering" {
   source = "../../modules/vpc_peering"
 
