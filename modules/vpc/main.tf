@@ -91,11 +91,7 @@ resource "aws_route_table" "private_nat_1" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = var.nat_instance_network_interface_ids[0]
-  }
-
-  tags = {
-    Name = "EKS-vpc-Private-RT-NAT-1"
+    network_interface_id = aws_instance.nat[0].network_interface[0].id
   }
 }
 
@@ -104,11 +100,7 @@ resource "aws_route_table" "private_nat_2" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = var.nat_instance_network_interface_ids[1]
-  }
-
-  tags = {
-    Name = "EKS-vpc-Private-RT-NAT-2"
+    network_interface_id = aws_instance.nat[1].network_interface[0].id
   }
 }
 
@@ -147,7 +139,7 @@ resource "aws_route_table_association" "eks_private_subnet_nat" {
   }
 
   subnet_id      = each.value.id
-  route_table_id = aws_route_table.private_nat[each.key].id  # 수정: 인덱스를 사용하여 접근
+  route_table_id = aws_route_table.private_nat[each.key].id
 }
 
 resource "aws_route_table_association" "eks_private_subnet_bastion" {
