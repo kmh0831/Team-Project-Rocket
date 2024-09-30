@@ -85,30 +85,22 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public["EKS-vpc"].id
 }
 
-# Private Route Table 생성 (NAT 인스턴스와 연결)
-resource "aws_route_table" "private_nat_1" {
+# Private NAT 라우팅 테이블 생성
+resource "aws_route_table" "private_nat" {
+  for_each = {
+    "private_nat_1" = aws_subnet.private["EKS-vpc-Private-Subnet-1"]
+    "private_nat_2" = aws_subnet.private["EKS-vpc-Private-Subnet-2"]
+  }
+
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = var.nat_instance_network_interface_ids[0]  # NAT 인스턴스 1의 네트워크 인터페이스로 연결
+    network_interface_id = element(var.nat_instance_network_interface_ids, each.key)
   }
 
   tags = {
-    Name = "EKS-vpc-Private-RT-NAT-1"
-  }
-}
-
-resource "aws_route_table" "private_nat_2" {
-  vpc_id = aws_vpc.this["EKS-vpc"].id
-
-  route {
-    cidr_block = "0.0.0.0/0"
-    network_interface_id = var.nat_instance_network_interface_ids[1]
-  }
-
-  tags = {
-    Name = "EKS-vpc-Private-RT-NAT-2"
+    Name = "EKS-vpc-Private-RT-NAT-${each.key}"
   }
 }
 
@@ -123,6 +115,20 @@ resource "aws_route_table" "private_bastion" {
 
   tags = {
     Name = "EKS-vpc-Private-RT-Bastion"
+  }
+}
+
+# DB VPC에 대한 라우팅 테이블도 동일하게 추가
+resource "aws_route_table" "db_private" {
+  for_each = {
+    "db_private_1" = aws_subnet.db_private["DB-vpc-Private-Subnet-1"]
+    "db_private_2" = aws_subnet.db_private["DB-vpc-Private-Subnet-2"]
+  }
+
+  vpc_id = aws_vpc.this["DB-vpc"].id
+
+  tags = {
+    Name = "DB-vpc-Private-RT-${each.key}"
   }
 }
 

@@ -71,10 +71,16 @@ module "eks" {
   source             = "../../modules/eks"
   vpc_id             = module.vpc.eks_vpc_id
   
-  # 클러스터와 노드 그룹에 사용할 서브넷
-  cluster_subnet_ids = module.vpc.eks_private_subnet_ids
-  node_subnet_ids    = module.vpc.eks_private_subnet_ids
-  subnet_ids         = module.vpc.eks_private_subnet_ids  # 클러스터가 사용하는 서브넷
+  # 클러스터와 노드 그룹에 각각 사용할 서브넷을 지정합니다.
+  cluster_subnet_ids = module.vpc.eks_private_subnet_ids  # 클러스터 서브넷
+  node_subnet_ids    = module.vpc.eks_private_subnet_ids  # 노드 그룹 서브넷
+
+  # 필수 필드인 subnet_ids 추가 (클러스터가 사용하는 서브넷)
+  subnet_ids         = module.vpc.eks_private_subnet_ids
+
+  # 새로 추가한 변수 전달
+  eks_private_subnet_ids = module.vpc.eks_private_subnet_ids
+  eks_route_table_ids    = module.vpc.eks_route_table_ids
 
   cluster_name       = var.cluster_name
   node_group_name    = var.node_group_name
@@ -93,21 +99,27 @@ module "eks" {
 # RDS 모듈 호출
 module "rds" {
   source = "../../modules/rds"
+  
   vpc_security_group_ids = [module.security_groups.rds_sg_id]
-  subnet_ids = module.vpc.db_private_subnet_ids
+  subnet_ids             = module.vpc.db_private_subnet_ids
 
-  db_identifier = var.db_identifier
-  db_name       = var.db_name
-  engine        = var.db_engine
-  engine_version = var.db_engine_version
-  instance_class = var.db_instance_class
-  allocated_storage = var.db_allocated_storage
-  storage_type = var.db_storage_type
-  multi_az = var.db_multi_az
-  username = var.db_username
-  password = var.db_password
+  db_identifier          = var.db_identifier
+  db_name                = var.db_name
+  engine                 = var.db_engine
+  engine_version         = var.db_engine_version
+  instance_class         = var.db_instance_class
+  allocated_storage      = var.db_allocated_storage
+  storage_type           = var.db_storage_type
+  multi_az               = var.db_multi_az
+  username               = var.db_username
+  password               = var.db_password
 
-  skip_final_snapshot = var.skip_final_snapshot
+  # 새로 추가한 변수 전달
+  db_private_subnet_ids  = module.vpc.db_private_subnet_ids
+  db_route_table_ids     = module.vpc.db_route_table_ids
+  vpc_id                 = module.vpc.db_vpc_id
+
+  skip_final_snapshot     = var.skip_final_snapshot
   final_snapshot_identifier = var.final_snapshot_identifier
 }
 

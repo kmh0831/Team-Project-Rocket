@@ -57,3 +57,13 @@ variable "node_subnet_ids" {
   description = "List of subnet IDs to associate with the EKS node group"
   type        = list(string)
 }
+
+variable "eks_private_subnet_ids" {
+  description = "List of private subnet IDs for the EKS cluster"
+  type        = list(string)
+}
+
+variable "eks_route_table_ids" {
+  description = "List of route table IDs for the EKS subnets"
+  type        = list(string)
+}

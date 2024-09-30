@@ -55,3 +55,18 @@ variable "skip_final_snapshot" {
 variable "final_snapshot_identifier" {
   type    = string
 }
+
+variable "db_private_subnet_ids" {
+  description = "List of private subnet IDs for the RDS instance"
+  type        = list(string)
+}
+
+variable "db_route_table_ids" {
+  description = "List of route table IDs for the DB subnets"
+  type        = list(string)
+}
+
+variable "vpc_id" {
+  description = "VPC ID where the RDS instance is deployed"
+  type        = string
+}
