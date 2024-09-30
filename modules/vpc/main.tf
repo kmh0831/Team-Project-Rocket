@@ -141,16 +141,26 @@ resource "aws_route_table_association" "private_bastion_assoc" {
   route_table_id = aws_route_table.private_bastion.id
 }
 
-resource "aws_route" "eks_to_rds" {
-  for_each = aws_subnet.private  # EKS 클러스터의 서브넷
-  route_table_id         = aws_route_table.private[each.key].id
+# EKS에서 RDS로 라우팅 설정
+resource "aws_route" "eks_to_rds_1" {
+  for_each = aws_route_table_association.private_nat_1_assoc  # NAT 1과 연결된 EKS 서브넷
+  route_table_id         = each.value.route_table_id
   destination_cidr_block = var.db_vpc_cidr_block  # RDS VPC의 CIDR 블록
-  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+  vpc_peering_connection_id = module.vpc_peering.peering_connection_id  # 출력값 참조
 }
 
+# EKS에서 RDS로 라우팅 설정
+resource "aws_route" "eks_to_rds_2" {
+  for_each = aws_route_table_association.private_nat_2_assoc  # NAT 1과 연결된 EKS 서브넷
+  route_table_id         = each.value.route_table_id
+  destination_cidr_block = var.db_vpc_cidr_block  # RDS VPC의 CIDR 블록
+  vpc_peering_connection_id = module.vpc_peering.peering_connection_id  # 출력값 참조
+}
+
+# RDS에서 EKS로 라우팅 설정
 resource "aws_route" "rds_to_eks" {
-  for_each = aws_subnet.db_private  # RDS 클러스터의 서브넷
-  route_table_id         = aws_route_table.db_private[each.key].id
+  for_each = aws_route_table_association.db_private  # RDS 서브넷과 연결된 라우팅 테이블
+  route_table_id         = each.value.route_table_id
   destination_cidr_block = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
-  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+  vpc_peering_connection_id = module.vpc_peering.peering_connection_id  # 출력값 참조
 }

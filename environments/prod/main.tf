@@ -120,8 +120,8 @@ module "vpc_peering" {
   source = "../../modules/vpc_peering"
 
   # VPC A와 B의 ID를 전달
-  vpc_id_a     = module.vpc_a.vpc_id  # EKS VPC ID
-  vpc_id_b     = module.vpc_b.vpc_id  # DB VPC ID
+  vpc_id_a     = module.vpc.eks_vpc_id  # EKS VPC ID
+  vpc_id_b     = module.vpc.db_vpc_id  # DB VPC ID
 
   # 피어링 연결 이름
   peering_name = "eks-db-peering"
