@@ -31,7 +31,7 @@ resource "aws_eks_cluster" "eks" {
   role_arn = var.eks_role_arn
 
   vpc_config {
-    subnet_ids         = var.cluster_subnet_ids  # 클러스터에 사용할 서브넷
+    subnet_ids         = var.cluster_subnet_ids
     security_group_ids = var.security_group_ids
   }
 
@@ -83,7 +83,7 @@ resource "aws_eks_node_group" "eks_nodes" {
   node_group_name = var.node_group_name
   node_role_arn   = var.node_role_arn
 
-  subnet_ids = var.node_subnet_ids  # 노드 그룹에 사용할 서브넷
+  subnet_ids = var.node_subnet_ids
 
   scaling_config {
     desired_size = var.desired_size

@@ -19,3 +19,15 @@ output "eks_node_role_arn" {
   description = "ARN of the EKS node IAM role"
   value       = aws_iam_role.eks_node_role.arn
 }
+
+output "eks_private_subnet_ids" {
+  value = aws_subnet.private[*].id
+}
+
+output "eks_route_table_ids" {
+  value = aws_route_table.private[*].id
+}
+
+output "vpc_id" {
+  value = aws_vpc.this.id
+}

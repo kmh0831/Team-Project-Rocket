@@ -16,8 +16,8 @@ resource "aws_subnet" "public" {
   for_each = { for i, cidr in var.vpc_config["EKS-vpc"].public_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["EKS-vpc"].id
-  cidr_block        = each.value  # 각 Public 서브넷의 CIDR 블록
-  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]  # 각 서브넷에 해당하는 AZ
+  cidr_block        = each.value
+  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]
 
   tags = {
     Name = "EKS-vpc-Public-Subnet-${each.key + 1}"
@@ -29,20 +29,20 @@ resource "aws_subnet" "private" {
   for_each = { for i, cidr in var.vpc_config["EKS-vpc"].private_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["EKS-vpc"].id
-  cidr_block        = each.value  # 각 Private 서브넷의 CIDR 블록
-  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]  # 각 서브넷에 해당하는 AZ
+  cidr_block        = each.value
+  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]
 
   tags = {
     Name = "EKS-vpc-Private-Subnet-${each.key + 1}"
   }
 }
 
-# DB VPC Private Subnets 생성 (퍼블릭 서브넷 없음)
+# DB VPC Private Subnets 생성
 resource "aws_subnet" "db_private" {
   for_each = { for i, cidr in var.vpc_config["DB-vpc"].private_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["DB-vpc"].id
-  cidr_block        = each.value  # 각 Private 서브넷의 CIDR 블록
+  cidr_block        = each.value
   availability_zone = var.vpc_config["DB-vpc"].availability_zones[each.key]
 
   tags = {
@@ -50,7 +50,7 @@ resource "aws_subnet" "db_private" {
   }
 }
 
-# Internet Gateway 생성 (DB 퍼블릭 서브넷 제외)
+# Internet Gateway 생성
 resource "aws_internet_gateway" "this" {
   for_each = aws_vpc.this
 
@@ -82,10 +82,10 @@ resource "aws_route_table_association" "public" {
   for_each = aws_subnet.public
 
   subnet_id      = each.value.id
-  route_table_id = aws_route_table.public["EKS-vpc"].id  # EKS VPC에 대해 Public Route Table과 연결
+  route_table_id = aws_route_table.public["EKS-vpc"].id
 }
 
-# modules/vpc/main.tf 파일에서 NAT 인스턴스 및 Bastion 호스트 네트워크 인터페이스 ID 사용
+# Private Route Table 생성 (NAT 인스턴스와 연결)
 resource "aws_route_table" "private_nat_1" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
@@ -104,7 +104,7 @@ resource "aws_route_table" "private_nat_2" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = var.nat_instance_network_interface_ids[1]  # NAT 인스턴스 2의 네트워크 인터페이스로 연결
+    network_interface_id = var.nat_instance_network_interface_ids[1]
   }
 
   tags = {
@@ -112,12 +112,13 @@ resource "aws_route_table" "private_nat_2" {
   }
 }
 
+# Bastion 호스트 네트워크 인터페이스 ID 사용
 resource "aws_route_table" "private_bastion" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = var.bastion_primary_network_interface_id  # Bastion 호스트의 네트워크 인터페이스로 연결
+    network_interface_id = var.bastion_primary_network_interface_id
   }
 
   tags = {
@@ -125,40 +126,30 @@ resource "aws_route_table" "private_bastion" {
   }
 }
 
-# Private Subnet Route Table Association (각 프라이빗 서브넷에 맞는 라우팅 테이블 연결)
-resource "aws_route_table_association" "private_nat_1_assoc" {
-  subnet_id      = aws_subnet.private[0].id
-  route_table_id = aws_route_table.private_nat_1.id
+# EKS 프라이빗 서브넷 A에서 DB 프라이빗 서브넷 A로 라우팅
+resource "aws_route" "eks_to_db_a" {
+  route_table_id         = aws_route_table.private_nat_1.id  # EKS 프라이빗 서브넷 A의 라우트 테이블 ID
+  destination_cidr_block = var.db_vpc_cidr_block  # DB VPC의 CIDR 블록
+  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 피어링 연결 ID
 }
 
-resource "aws_route_table_association" "private_nat_2_assoc" {
-  subnet_id      = aws_subnet.private[1].id
-  route_table_id = aws_route_table.private_nat_2.id
+# EKS 프라이빗 서브넷 B에서 DB 프라이빗 서브넷 B로 라우팅
+resource "aws_route" "eks_to_db_b" {
+  route_table_id         = aws_route_table.private_nat_2.id  # EKS 프라이빗 서브넷 B의 라우트 테이블 ID
+  destination_cidr_block = var.db_vpc_cidr_block  # DB VPC의 CIDR 블록
+  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 피어링 연결 ID
 }
 
-resource "aws_route_table_association" "private_bastion_assoc" {
-  subnet_id      = aws_subnet.private[2].id
-  route_table_id = aws_route_table.private_bastion.id
-}
-
-# EKS에서 RDS로 라우팅 설정
-resource "aws_route" "eks_to_rds_1" {
-  for_each = aws_route_table_association.private_nat_1_assoc  # NAT 1과 연결된 EKS 서브넷
-  route_table_id         = each.value.route_table_id
-  destination_cidr_block = var.db_vpc_cidr_block  # RDS VPC의 CIDR 블록
-  vpc_peering_connection_id = module.vpc_peering.peering_connection_id  # 출력값 참조
-}
-
-resource "aws_route" "eks_to_rds" {
-  for_each = aws_subnet.private  # EKS 클러스터의 서브넷
-  route_table_id         = aws_route_table.private[each.key].id
-  destination_cidr_block = var.db_vpc_cidr_block  # RDS VPC의 CIDR 블록
-  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 상위에서 호출한 peering 모듈의 출력값 참조
-}
-
-resource "aws_route" "rds_to_eks" {
-  for_each = aws_subnet.db_private  # RDS 클러스터의 서브넷
-  route_table_id         = aws_route_table.db_private[each.key].id
+# DB 프라이빗 서브넷 A에서 EKS 프라이빗 서브넷 A로 라우팅
+resource "aws_route" "db_to_eks_a" {
+  route_table_id         = aws_route_table.db_private[0].id  # DB 프라이빗 서브넷 A의 라우트 테이블 ID
   destination_cidr_block = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
-  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 상위에서 호출한 peering 모듈의 출력값 참조
+  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 피어링 연결 ID
+}
+
+# DB 프라이빗 서브넷 B에서 EKS 프라이빗 서브넷 B로 라우팅
+resource "aws_route" "db_to_eks_b" {
+  route_table_id         = aws_route_table.db_private[1].id  # DB 프라이빗 서브넷 B의 라우트 테이블 ID
+  destination_cidr_block = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
+  vpc_peering_connection_id = module.vpc_peering.vpc_peering_connection_id  # 피어링 연결 ID
 }
