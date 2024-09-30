@@ -125,6 +125,5 @@ module "vpc_peering" {
 
   eks_private_subnet_ids = module.vpc.eks_private_subnet_ids
   db_private_subnet_ids  = module.vpc.db_private_subnet_ids
-  eks_route_table_ids    = module.vpc.eks_route_table_ids
   db_route_table_ids     = module.vpc.db_route_table_ids
 }
