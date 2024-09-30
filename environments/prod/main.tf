@@ -71,12 +71,10 @@ module "eks" {
   source             = "../../modules/eks"
   vpc_id             = module.vpc.eks_vpc_id
   
-  # 클러스터와 노드 그룹에 각각 사용할 서브넷을 지정합니다.
-  cluster_subnet_ids = module.vpc.eks_private_subnet_ids  # 클러스터 서브넷
-  node_subnet_ids    = module.vpc.eks_private_subnet_ids  # 노드 그룹 서브넷
-
-  # 필수 필드인 subnet_ids 추가 (클러스터가 사용하는 서브넷)
-  subnet_ids         = module.vpc.eks_private_subnet_ids
+  # 클러스터와 노드 그룹에 사용할 서브넷
+  cluster_subnet_ids = module.vpc.eks_private_subnet_ids
+  node_subnet_ids    = module.vpc.eks_private_subnet_ids
+  subnet_ids         = module.vpc.eks_private_subnet_ids  # 클러스터가 사용하는 서브넷
 
   cluster_name       = var.cluster_name
   node_group_name    = var.node_group_name
