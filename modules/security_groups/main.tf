@@ -57,6 +57,13 @@ resource "aws_security_group" "eks_cluster_sg" {
   description = "Security group for EKS Cluster"
   vpc_id      = var.vpc_id
 
+    ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -65,7 +72,7 @@ resource "aws_security_group" "eks_cluster_sg" {
   }
 
   tags = {
-    Name = "eks-cluster-sg"
+    Name = "EKS-cluster-sg"
   }
 }
 
@@ -90,7 +97,7 @@ resource "aws_security_group" "eks_node_sg" {
   }
 
   tags = {
-    Name = "eks-node-sg"
+    Name = "EKS-node-sg"
   }
 }
 
