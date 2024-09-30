@@ -66,14 +66,14 @@ module "eks" {
   source             = "../../modules/eks"
   vpc_id             = module.vpc.eks_vpc_id
 
-  # 클러스터는 프라이빗 서브넷 C에 배포
-  cluster_subnet_ids = [element(module.vpc.private_subnet_ids, 2)]  # 프라이빗 서브넷 C
+  # 클러스터는 서로 다른 AZ에 배포된 프라이빗 서브넷 C, D에 배포
+  cluster_subnet_ids = [element(module.vpc.private_subnet_ids, 2), element(module.vpc.private_subnet_ids, 3)]  # 프라이빗 서브넷 C, D
 
-  # 노드 그룹은 프라이빗 서브넷 A, B에 배포
+  # 노드 그룹은 서로 다른 AZ에 배포된 프라이빗 서브넷 A, B에 배포
   node_subnet_ids    = [element(module.vpc.private_subnet_ids, 0), element(module.vpc.private_subnet_ids, 1)]  # 프라이빗 서브넷 A, B
 
   # EKS 클러스터에서 subnet_ids도 필요하다면 아래처럼 설정
-  subnet_ids         = [element(module.vpc.private_subnet_ids, 2)]  # 서브넷 C는 클러스터용 서브넷
+  subnet_ids         = [element(module.vpc.private_subnet_ids, 2), element(module.vpc.private_subnet_ids, 3)]  # 서로 다른 AZ의 서브넷 C, D
 
   # EKS 클러스터 및 노드 그룹 관련 설정
   cluster_name       = var.cluster_name
