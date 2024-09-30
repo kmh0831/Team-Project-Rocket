@@ -14,10 +14,9 @@ module "vpc" {
   eks_vpc_cidr_block = var.eks_vpc_cidr_block
   db_vpc_cidr_block  = var.db_vpc_cidr_block
 
-  # Bastion 모듈에서 네트워크 인터페이스 ID 가져오기
+  # Bastion 네트워크 인터페이스 ID 전달
   bastion_primary_network_interface_id = module.bastion.bastion_primary_network_interface_id
 }
-
 
 # 보안 그룹 모듈 호출
 module "security_groups" {

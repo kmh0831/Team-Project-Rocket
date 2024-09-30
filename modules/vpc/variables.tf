@@ -34,7 +34,9 @@ variable "db_vpc_cidr_block" {
   type        = string
 }
 
+# modules/vpc/variables.tf
+
 variable "bastion_primary_network_interface_id" {
-  description = "Bastion 호스트의 주요 네트워크 인터페이스 ID"
+  description = "Bastion host primary network interface ID"
   type        = string
 }

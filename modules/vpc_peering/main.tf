@@ -20,7 +20,9 @@ resource "aws_route" "eks_to_db" {
 
 # DB에서 EKS로 가는 라우트 추가
 resource "aws_route" "db_to_eks" {
-  route_table_id = aws_route_table.db_private[each.key].id
+  for_each = var.db_route_table_ids
+
+  route_table_id = each.value
   destination_cidr_block = var.eks_vpc_cidr
   vpc_peering_connection_id = aws_vpc_peering_connection.this.id
 }

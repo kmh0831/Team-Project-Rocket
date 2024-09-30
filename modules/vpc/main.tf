@@ -93,6 +93,10 @@ resource "aws_route_table" "private_nat_1" {
     cidr_block = "0.0.0.0/0"
     network_interface_id = aws_instance.nat[0].network_interface[0].id
   }
+
+  tags = {
+    Name = "EKS-vpc-Private-RT-NAT-1"
+  }
 }
 
 resource "aws_route_table" "private_nat_2" {
@@ -102,6 +106,10 @@ resource "aws_route_table" "private_nat_2" {
     cidr_block = "0.0.0.0/0"
     network_interface_id = aws_instance.nat[1].network_interface[0].id
   }
+
+  tags = {
+    Name = "EKS-vpc-Private-RT-NAT-2"
+  }
 }
 
 # VPC 모듈에서 Bastion 인스턴스 네트워크 인터페이스 ID 사용
@@ -110,7 +118,7 @@ resource "aws_route_table" "private_bastion" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = module.bastion.bastion_network_interface_id  # Bastion 모듈에서 출력된 값을 사용
+    network_interface_id = var.bastion_primary_network_interface_id  # bastion 네트워크 인터페이스 ID 사용
   }
 
   tags = {
