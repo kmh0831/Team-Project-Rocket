@@ -112,18 +112,3 @@ module "rds" {
   skip_final_snapshot     = var.skip_final_snapshot
   final_snapshot_identifier = var.final_snapshot_identifier
 }
-
-# VPC Peering 모듈 호출
-module "vpc_peering" {
-  source = "../../modules/vpc_peering"
-
-  vpc_id_a       = module.vpc.eks_vpc_id
-  vpc_id_b       = module.vpc.db_vpc_id
-  peering_name   = "eks-db-peering"
-  eks_vpc_cidr   = var.eks_vpc_cidr_block
-  db_vpc_cidr    = var.db_vpc_cidr_block
-
-  eks_private_subnet_ids = module.vpc.eks_private_subnet_ids
-  db_private_subnet_ids  = module.vpc.db_private_subnet_ids
-  db_route_table_ids     = module.vpc.db_route_table_ids
-}

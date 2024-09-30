@@ -91,7 +91,7 @@ resource "aws_route_table" "private_nat_1" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = aws_instance.nat[0].network_interface[0].id
+    network_interface_id = module.nat.nat_instance_network_interface_ids[0] # NAT 인스턴스 참조 수정
   }
 
   tags = {
@@ -104,7 +104,7 @@ resource "aws_route_table" "private_nat_2" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = aws_instance.nat[1].network_interface[0].id
+    network_interface_id = module.nat.nat_instance_network_interface_ids[1] # NAT 인스턴스 참조 수정
   }
 
   tags = {
@@ -118,7 +118,7 @@ resource "aws_route_table" "private_bastion" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = var.bastion_primary_network_interface_id  # bastion 네트워크 인터페이스 ID 사용
+    network_interface_id = module.bastion.bastion_primary_network_interface_id  # Bastion 모듈에서 참조
   }
 
   tags = {
