@@ -85,7 +85,7 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public["EKS-vpc"].id
 }
 
-# Private NAT 라우팅 테이블 생성
+# NAT 인스턴스와 네트워크 인터페이스 직접 참조
 resource "aws_route_table" "private_nat" {
   for_each = {
     "private_nat_1" = aws_subnet.private["EKS-vpc-Private-Subnet-1"]
@@ -96,7 +96,8 @@ resource "aws_route_table" "private_nat" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = element(var.nat_instance_network_interface_ids, each.key)
+    # nat_instance_network_interface_ids 대신 NAT 인스턴스를 직접 참조
+    network_interface_id = aws_instance.nat[each.key == "private_nat_1" ? 0 : 1].network_interface[0].id
   }
 
   tags = {
@@ -104,13 +105,14 @@ resource "aws_route_table" "private_nat" {
   }
 }
 
-# Bastion 호스트 네트워크 인터페이스 ID 사용
+# Bastion 호스트 네트워크 인터페이스 직접 참조
 resource "aws_route_table" "private_bastion" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = var.bastion_primary_network_interface_id
+    # bastion_primary_network_interface_id 대신 Bastion 인스턴스를 직접 참조
+    network_interface_id = aws_instance.bastion.network_interface[0].id
   }
 
   tags = {
@@ -136,11 +138,10 @@ resource "aws_route_table_association" "eks_private_subnet_nat" {
   for_each = {
     "EKS-vpc-Private-Subnet-1" = aws_subnet.private["EKS-vpc-Private-Subnet-1"]
     "EKS-vpc-Private-Subnet-2" = aws_subnet.private["EKS-vpc-Private-Subnet-2"]
-    "EKS-vpc-Private-Subnet-3" = aws_subnet.private["EKS-vpc-Private-Subnet-3"]
   }
 
-  subnet_id = each.value.id
-  route_table_id = aws_route_table.private_nat.id
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.private_nat[each.key].id  # 수정: 인덱스를 사용하여 접근
 }
 
 resource "aws_route_table_association" "eks_private_subnet_bastion" {

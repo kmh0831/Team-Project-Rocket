@@ -1,7 +1,8 @@
 # VPC Peering을 위한 라우트 설정
-resource "aws_vpc_peering_connection" "this" {
-  vpc_id = var.vpc_id_a
-  peer_vpc_id = var.vpc_id_b
+resource "aws_vpc_peering_connection" "peering" {
+  vpc_id        = var.vpc_id_a
+  peer_vpc_id   = var.vpc_id_b
+  auto_accept   = true
 
   tags = {
     Name = var.peering_name
