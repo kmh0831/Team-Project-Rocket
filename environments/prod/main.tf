@@ -11,6 +11,9 @@ module "vpc" {
   enable_dns_hostnames  = var.enable_dns_hostnames
   route_cidr_block      = var.route_cidr_block
 
+  eks_vpc_cidr_block = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
+  db_vpc_cidr_block  = var.db_vpc_cidr_block   # DB VPC의 CIDR 블록
+
   # NAT 인스턴스와 Bastion 호스트의 네트워크 인터페이스 IDs 전달
   nat_instance_network_interface_ids    = module.nat.nat_instance_network_interface_ids
   bastion_primary_network_interface_id  = module.bastion.bastion_primary_network_interface_id
