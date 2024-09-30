@@ -121,12 +121,18 @@ module "vpc_peering" {
 
   # VPC A와 B의 ID를 전달
   vpc_id_a     = module.vpc.eks_vpc_id  # EKS VPC ID
-  vpc_id_b     = module.vpc.db_vpc_id  # DB VPC ID
+  vpc_id_b     = module.vpc.db_vpc_id   # DB VPC ID
 
   # 피어링 연결 이름
   peering_name = "eks-db-peering"
 
   # EKS와 DB VPC의 CIDR 블록
   eks_vpc_cidr = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
-  db_vpc_cidr  = var.db_vpc_cidr_block  # DB VPC의 CIDR 블록
+  db_vpc_cidr  = var.db_vpc_cidr_block   # DB VPC의 CIDR 블록
+
+  # EKS 및 DB VPC의 서브넷 및 라우트 테이블 ID 전달
+  eks_private_subnet_ids = module.vpc.eks_private_subnet_ids
+  eks_route_table_ids    = module.vpc.eks_route_table_ids
+  db_private_subnet_ids  = module.vpc.db_private_subnet_ids
+  db_route_table_ids     = module.vpc.db_route_table_ids
 }
