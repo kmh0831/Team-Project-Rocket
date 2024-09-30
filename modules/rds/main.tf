@@ -21,7 +21,7 @@ resource "aws_db_instance" "rds" {
 
 resource "aws_db_subnet_group" "rds_subnet" {
   name       = "${var.db_identifier}-subnet-group"
-  subnet_ids = var.subnet_ids
+  subnet_ids = var.subnet_ids  # 여전히 모듈 호출 시 전달된 값 사용
 
   tags = {
     Name = "${var.db_identifier}-subnet-group"

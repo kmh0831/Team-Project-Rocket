@@ -22,10 +22,9 @@ output "eks_private_subnet_ids" {
   value       = [for subnet in values(aws_subnet.private) : subnet.id]  # 올바르게 private 서브넷을 참조
 }
 
-# DB 프라이빗 서브넷 ID들 출력
 output "db_private_subnet_ids" {
   description = "DB Private Subnet IDs"
-  value       = [for subnet in values(aws_subnet.db_private) : subnet.id]  # DB VPC의 private 서브넷을 참조
+  value       = [for subnet in aws_subnet.db_private : subnet.id]
 }
 
 output "private_subnet_ids" {
