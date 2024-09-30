@@ -14,6 +14,9 @@ resource "aws_db_instance" "rds" {
   vpc_security_group_ids  = var.vpc_security_group_ids
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet.name
 
+    # 최종 스냅샷 건너뛰기 설정
+  skip_final_snapshot     = var.skip_final_snapshot
+
   tags = {
     Name = var.db_identifier
   }

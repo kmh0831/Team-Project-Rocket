@@ -106,4 +106,24 @@ module "rds" {
   multi_az = var.db_multi_az
   username = var.db_username
   password = var.db_password
+
+  # 최종 스냅샷 옵션 추가
+  skip_final_snapshot     = var.skip_final_snapshot
+  final_snapshot_identifier = var.final_snapshot_identifier
+
+}
+
+module "vpc_peering" {
+  source = "../../modules/vpc_peering"
+
+  # VPC A와 B의 ID를 전달
+  vpc_id_a     = module.vpc_a.vpc_id  # EKS VPC ID
+  vpc_id_b     = module.vpc_b.vpc_id  # DB VPC ID
+
+  # 피어링 연결 이름
+  peering_name = "eks-db-peering"
+
+  # EKS와 DB VPC의 CIDR 블록
+  eks_vpc_cidr = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
+  db_vpc_cidr  = var.db_vpc_cidr_block  # DB VPC의 CIDR 블록
 }

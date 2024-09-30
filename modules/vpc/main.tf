@@ -140,3 +140,17 @@ resource "aws_route_table_association" "private_bastion_assoc" {
   subnet_id      = aws_subnet.private[2].id
   route_table_id = aws_route_table.private_bastion.id
 }
+
+resource "aws_route" "eks_to_rds" {
+  for_each = aws_subnet.private  # EKS 클러스터의 서브넷
+  route_table_id         = aws_route_table.private[each.key].id
+  destination_cidr_block = var.db_vpc_cidr_block  # RDS VPC의 CIDR 블록
+  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+}
+
+resource "aws_route" "rds_to_eks" {
+  for_each = aws_subnet.db_private  # RDS 클러스터의 서브넷
+  route_table_id         = aws_route_table.db_private[each.key].id
+  destination_cidr_block = var.eks_vpc_cidr_block  # EKS VPC의 CIDR 블록
+  vpc_peering_connection_id = aws_vpc_peering_connection.peering.id
+}

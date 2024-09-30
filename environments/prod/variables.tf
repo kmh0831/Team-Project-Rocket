@@ -169,3 +169,11 @@ variable "nat_security_group_egress_cidr_blocks" {
   description = "CIDR blocks allowed for egress traffic in the NAT security group"
   type        = list(string)
 }
+
+variable "skip_final_snapshot" {
+  type    = bool
+}
+
+variable "final_snapshot_identifier" {
+  type    = string
+}

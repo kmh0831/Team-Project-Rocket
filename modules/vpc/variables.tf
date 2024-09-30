@@ -35,3 +35,13 @@ variable "bastion_primary_network_interface_id" {
   description = "Bastion 호스트의 주요 네트워크 인터페이스 ID"
   type        = string
 }
+
+variable "eks_vpc_cidr_block" {
+  description = "CIDR block for the EKS VPC"
+  type        = string
+}
+
+variable "db_vpc_cidr_block" {
+  description = "CIDR block for the DB VPC"
+  type        = string
+}

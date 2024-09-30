@@ -56,3 +56,6 @@ vpc_config = {
 # NAT 보안 그룹 설정
 nat_security_group_ingress_cidr_blocks = ["0.0.0.0/0"]
 nat_security_group_egress_cidr_blocks  = ["0.0.0.0/0"]
+
+skip_final_snapshot = true
+final_snapshot_identifier = null
