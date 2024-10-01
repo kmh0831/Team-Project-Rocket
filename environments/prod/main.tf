@@ -36,9 +36,15 @@ module "security_groups" {
 
 # NAT 모듈 호출
 module "nat" {
-  source            = "../../modules/nat"
-  vpc_id            = module.vpc.eks_vpc_id
-  nat_subnet_ids    = module.vpc.eks_public_subnet_ids
+  source = "../../modules/nat"
+  vpc_id = module.vpc.eks_vpc_id
+
+  # NAT 인스턴스를 생성할 서브넷 ID를 첫 두 개의 퍼블릭 서브넷으로 제한
+  nat_subnet_ids = [
+    module.vpc.eks_public_subnet_ids[0],
+    module.vpc.eks_public_subnet_ids[1]
+  ]
+
   nat_ami           = var.nat_ami
   nat_instance_type = var.nat_instance_type
   key_name          = var.key_name
