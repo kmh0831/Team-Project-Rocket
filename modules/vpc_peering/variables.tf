@@ -1,5 +1,3 @@
-# modules/vpc_peering/variables.tf
-
 variable "vpc_id_a" {
   type = string
 }
@@ -18,4 +16,12 @@ variable "eks_vpc_cidr" {
 
 variable "db_vpc_cidr" {
   type = string
+}
+
+variable "eks_private_route_table_ids" {
+  type = list(string)
+}
+
+variable "db_private_route_table_ids" {
+  type = list(string)
 }

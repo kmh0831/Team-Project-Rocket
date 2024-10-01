@@ -1,36 +1,24 @@
-# modules/security_groups/variables.tf
-
 variable "vpc_id" {
-  description = "The ID of the VPC where the resources will be deployed"
-  type        = string
-}
-
-variable "vpc_cidr_block" {
-  description = "The CIDR block for the VPC"
-  type        = string
-}
-
-variable "db_vpc_id" {
-  description = "The ID of the VPC for the RDS"
+  description = "The VPC ID for security groups"
   type        = string
 }
 
 variable "allowed_ssh_cidr" {
-  description = "The CIDR block allowed to access the Bastion host via SSH"
+  description = "The CIDR block allowed for SSH access"
   type        = string
 }
 
 variable "db_allowed_cidr" {
-  description = "The CIDR block allowed to access the RDS"
+  description = "CIDR block allowed for DB access"
   type        = string
 }
 
 variable "nat_security_group_ingress_cidr_blocks" {
-  type    = list(string)
-  default = ["0.0.0.0/0"]
+  description = "CIDR blocks allowed for ingress traffic to NAT"
+  type        = list(string)
 }
 
 variable "nat_security_group_egress_cidr_blocks" {
-  type    = list(string)
-  default = ["0.0.0.0/0"]
+  description = "CIDR blocks allowed for egress traffic from NAT"
+  type        = list(string)
 }

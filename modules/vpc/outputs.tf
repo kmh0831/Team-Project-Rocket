@@ -26,3 +26,18 @@ output "db_private_subnet_ids" {
   description = "DB Private Subnet IDs"
   value       = [for subnet in aws_subnet.db_private : subnet.id]
 }
+
+output "private_subnet_ids" {
+  description = "EKS VPC의 Private 서브넷 ID 목록"
+  value       = [for subnet in aws_subnet.private : subnet.id]
+}
+
+output "eks_private_route_table_ids" {
+  description = "EKS VPC의 프라이빗 라우트 테이블 ID 목록"
+  value       = [aws_route_table.private_nat_1.id, aws_route_table.private_nat_2.id]
+}
+
+output "db_private_route_table_ids" {
+  description = "DB VPC의 프라이빗 라우트 테이블 ID 목록"
+  value       = [for rt in aws_route_table.db_private : rt.id]
+}

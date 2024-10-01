@@ -1,5 +1,3 @@
-# modules/vpc/variables.tf
-
 variable "vpc_config" {
   type = map(object({
     cidr_block           = string
@@ -27,7 +25,7 @@ variable "route_cidr_block" {
 variable "internet_gateway_id" {
   description = "ID of the existing Internet Gateway"
   type        = string
-  default     = null  # 새로 만들지 않으면 null로 설정
+  default     = null
 }
 
 variable "public_subnet_cidr_blocks" {
@@ -40,23 +38,4 @@ variable "private_subnet_cidr_blocks" {
 
 variable "availability_zones" {
   type = list(string)
-}
-
-# modules/vpc/variables.tf
-
-variable "nat_instance_ids" {
-  description = "NAT 인스턴스의 네트워크 인터페이스 ID 목록"
-  type        = list(string)
-}
-
-# modules/vpc/variables.tf
-
-variable "nat_instance_network_interface_ids" {
-  description = "NAT 인스턴스의 네트워크 인터페이스 ID 목록"
-  type        = list(string)
-}
-
-variable "bastion_primary_network_interface_id" {
-  description = "Bastion 호스트의 주요 네트워크 인터페이스 ID"
-  type        = string
 }
