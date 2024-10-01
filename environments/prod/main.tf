@@ -22,14 +22,14 @@ module "security_groups" {
   source = "../../modules/security_groups"
 
   vpc_id                     = module.vpc.eks_vpc_id
-  db_vpc_id                  = module.vpc.db_vpc_id
   allowed_ssh_cidr           = var.allowed_ssh_cidr
   db_allowed_cidr            = var.db_allowed_cidr
   nat_security_group_ingress_cidr_blocks = var.nat_security_group_ingress_cidr_blocks
   nat_security_group_egress_cidr_blocks  = var.nat_security_group_egress_cidr_blocks
 
-  # 추가된 부분
-  vpc_cidr_block = var.eks_vpc_cidr_block
+  # 필요한 변수 다시 추가
+  db_vpc_id       = module.vpc.db_vpc_id
+  vpc_cidr_block  = var.eks_vpc_cidr_block
 }
 
 # NAT 모듈 호출

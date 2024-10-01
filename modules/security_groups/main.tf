@@ -84,7 +84,7 @@ resource "aws_security_group" "eks_node_sg" {
     from_port   = 0
     to_port     = 65535
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.vpc_cidr_block]
   }
 
   egress {
@@ -106,7 +106,7 @@ resource "aws_security_group" "rds_sg" {
   vpc_id      = var.db_vpc_id
 
   ingress {
-    from_port   = 3306  # MySQL 포트 (필요에 따라 조정)
+    from_port   = 3306  # 데이터베이스 포트 (예: MySQL은 3306)
     to_port     = 3306
     protocol    = "tcp"
     cidr_blocks = [var.db_allowed_cidr]
