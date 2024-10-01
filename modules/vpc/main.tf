@@ -124,18 +124,38 @@ resource "aws_route_table" "private_bastion" {
   }
 }
 
-# 라우트 테이블과 서브넷 간의 연결 설정
+# EKS VPC의 프라이빗 서브넷과 라우트 테이블 연결
 resource "aws_route_table_association" "private_nat_1_assoc" {
-  subnet_id      = element(module.vpc.eks_private_subnet_ids, 0)
+  subnet_id      = aws_subnet.private["0"].id
   route_table_id = aws_route_table.private_nat_1.id
 }
 
 resource "aws_route_table_association" "private_nat_2_assoc" {
-  subnet_id      = element(module.vpc.eks_private_subnet_ids, 1)
+  subnet_id      = aws_subnet.private["1"].id
   route_table_id = aws_route_table.private_nat_2.id
 }
 
 resource "aws_route_table_association" "private_bastion_assoc" {
-  subnet_id      = element(module.vpc.eks_private_subnet_ids, 2)
+  subnet_id      = aws_subnet.private["2"].id
   route_table_id = aws_route_table.private_bastion.id
+}
+
+
+# DB VPC의 프라이빗 라우트 테이블 생성
+resource "aws_route_table" "db_private" {
+  for_each = aws_subnet.db_private
+
+  vpc_id = aws_vpc.this["DB-vpc"].id
+
+  tags = {
+    Name = "DB-vpc-Private-RT-${each.key}"
+  }
+}
+
+# 프라이빗 서브넷과 라우트 테이블 연결
+resource "aws_route_table_association" "db_private_assoc" {
+  for_each = aws_subnet.db_private
+
+  subnet_id      = each.value.id
+  route_table_id = aws_route_table.db_private[each.key].id
 }
