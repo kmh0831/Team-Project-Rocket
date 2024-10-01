@@ -9,7 +9,9 @@ variable "bastion_subnet_id" {
 }
 
 variable "bastion_instance_private_ip" {
-  type = string
+  description = "Private IP for the Bastion host"
+  type        = string
+  default     = ""  # 기본값을 빈 문자열로 설정
 }
 
 variable "bastion_ami" {

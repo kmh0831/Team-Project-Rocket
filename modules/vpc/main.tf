@@ -16,8 +16,8 @@ resource "aws_subnet" "public" {
   for_each = { for i, cidr in var.vpc_config["EKS-vpc"].public_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["EKS-vpc"].id
-  cidr_block        = each.value
-  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]
+  cidr_block        = each.value  # 각 Public 서브넷의 CIDR 블록
+  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]  # 각 서브넷에 해당하는 AZ
 
   tags = {
     Name = "EKS-vpc-Public-Subnet-${each.key + 1}"
@@ -29,20 +29,20 @@ resource "aws_subnet" "private" {
   for_each = { for i, cidr in var.vpc_config["EKS-vpc"].private_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["EKS-vpc"].id
-  cidr_block        = each.value
-  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]
+  cidr_block        = each.value  # 각 Private 서브넷의 CIDR 블록
+  availability_zone = var.vpc_config["EKS-vpc"].availability_zones[each.key]  # 각 서브넷에 해당하는 AZ
 
   tags = {
     Name = "EKS-vpc-Private-Subnet-${each.key + 1}"
   }
 }
 
-# DB VPC Private Subnets 생성
+# DB VPC Private Subnets 생성 (퍼블릭 서브넷 없음)
 resource "aws_subnet" "db_private" {
   for_each = { for i, cidr in var.vpc_config["DB-vpc"].private_subnets : i => cidr }
 
   vpc_id            = aws_vpc.this["DB-vpc"].id
-  cidr_block        = each.value
+  cidr_block        = each.value  # 각 Private 서브넷의 CIDR 블록
   availability_zone = var.vpc_config["DB-vpc"].availability_zones[each.key]
 
   tags = {
@@ -50,7 +50,7 @@ resource "aws_subnet" "db_private" {
   }
 }
 
-# Internet Gateway 생성
+# Internet Gateway 생성 (DB 퍼블릭 서브넷 제외)
 resource "aws_internet_gateway" "this" {
   for_each = aws_vpc.this
 
@@ -61,19 +61,17 @@ resource "aws_internet_gateway" "this" {
   }
 }
 
-# Public Route Table 생성
+# EKS VPC에만 Public Route Table 생성
 resource "aws_route_table" "public" {
-  for_each = aws_vpc.this
-
-  vpc_id = each.value.id
+  vpc_id = aws_vpc.this["EKS-vpc"].id  # EKS VPC에만 적용
 
   route {
     cidr_block = var.route_cidr_block
-    gateway_id = aws_internet_gateway.this[each.key].id
+    gateway_id = aws_internet_gateway.this["EKS-vpc"].id  # EKS VPC에 대한 인터넷 게이트웨이 참조
   }
 
   tags = {
-    Name = "${each.key}-Public-RT"
+    Name = "EKS-vpc-Public-RT"
   }
 }
 
@@ -85,13 +83,13 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public["EKS-vpc"].id
 }
 
-# NAT 인스턴스 및 Bastion 호스트 네트워크 인터페이스 ID 사용
+# Private Route Table 생성 (각 프라이빗 서브넷이 NAT 인스턴스와 연결)
 resource "aws_route_table" "private_nat_1" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = module.nat.nat_instance_network_interface_ids[0] # NAT 인스턴스 참조 수정
+    network_interface_id = module.nat.nat_instance_network_interface_ids[0]
   }
 
   tags = {
@@ -104,7 +102,7 @@ resource "aws_route_table" "private_nat_2" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = module.nat.nat_instance_network_interface_ids[1] # NAT 인스턴스 참조 수정
+    network_interface_id = module.nat.nat_instance_network_interface_ids[1]
   }
 
   tags = {
@@ -112,13 +110,13 @@ resource "aws_route_table" "private_nat_2" {
   }
 }
 
-# VPC 모듈에서 Bastion 인스턴스 네트워크 인터페이스 ID 사용
+# Bastion 호스트 라우팅 설정 (EKS 프라이빗 서브넷 3에 연결)
 resource "aws_route_table" "private_bastion" {
   vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = module.bastion.bastion_primary_network_interface_id  # Bastion 모듈에서 참조
+    network_interface_id = module.bastion.bastion_primary_network_interface_id
   }
 
   tags = {
@@ -126,31 +124,18 @@ resource "aws_route_table" "private_bastion" {
   }
 }
 
-# DB VPC에 대한 라우팅 테이블도 동일하게 추가
-resource "aws_route_table" "db_private" {
-  for_each = {
-    "db_private_1" = aws_subnet.db_private["DB-vpc-Private-Subnet-1"]
-    "db_private_2" = aws_subnet.db_private["DB-vpc-Private-Subnet-2"]
-  }
-
-  vpc_id = aws_vpc.this["DB-vpc"].id
-
-  tags = {
-    Name = "DB-vpc-Private-RT-${each.key}"
-  }
+# Private Subnet Route Table Association
+resource "aws_route_table_association" "private_nat_1_assoc" {
+  subnet_id      = aws_subnet.private[0].id
+  route_table_id = aws_route_table.private_nat_1.id
 }
 
-resource "aws_route_table_association" "eks_private_subnet_nat" {
-  for_each = {
-    "EKS-vpc-Private-Subnet-1" = aws_subnet.private["EKS-vpc-Private-Subnet-1"]
-    "EKS-vpc-Private-Subnet-2" = aws_subnet.private["EKS-vpc-Private-Subnet-2"]
-  }
-
-  subnet_id      = each.value.id
-  route_table_id = aws_route_table.private_nat[each.key].id
+resource "aws_route_table_association" "private_nat_2_assoc" {
+  subnet_id      = aws_subnet.private[1].id
+  route_table_id = aws_route_table.private_nat_2.id
 }
 
-resource "aws_route_table_association" "eks_private_subnet_bastion" {
-  subnet_id      = aws_subnet.private["EKS-vpc-Private-Subnet-3"].id
+resource "aws_route_table_association" "private_bastion_assoc" {
+  subnet_id      = aws_subnet.private[2].id
   route_table_id = aws_route_table.private_bastion.id
 }

@@ -26,13 +26,11 @@ variable "db_allowed_cidr" {
 }
 
 variable "nat_security_group_ingress_cidr_blocks" {
-  description = "Ingress CIDR blocks for NAT instance security group"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
+  type    = list(string)
+  default = ["0.0.0.0/0"]
 }
 
 variable "nat_security_group_egress_cidr_blocks" {
-  description = "Egress CIDR blocks for NAT instance security group"
-  type        = list(string)
-  default     = ["0.0.0.0/0"]
+  type    = list(string)
+  default = ["0.0.0.0/0"]
 }

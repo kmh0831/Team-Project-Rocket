@@ -50,13 +50,10 @@ variable "password" {
 
 variable "skip_final_snapshot" {
   type    = bool
+  default = true  # 기본적으로 최종 스냅샷을 건너뛰도록 설정
 }
 
 variable "final_snapshot_identifier" {
   type    = string
-}
-
-variable "vpc_id" {
-  description = "The VPC ID in which RDS will be deployed"
-  type        = string
+  default = null  # 기본값을 null로 설정하여 스냅샷 식별자 사용을 선택 사항으로 설정
 }

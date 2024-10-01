@@ -170,15 +170,8 @@ variable "nat_security_group_egress_cidr_blocks" {
   type        = list(string)
 }
 
-variable "skip_final_snapshot" {
-  type    = bool
-}
-
-variable "final_snapshot_identifier" {
-  type    = string
-}
-
-variable "multi_az" {
-  description = "Specify whether the RDS instance is deployed in multiple availability zones"
-  type        = bool
+# List 형식으로 가용 영역 정의
+variable "availability_zones" {
+  description = "List of availability zones"
+  type        = list(string)
 }

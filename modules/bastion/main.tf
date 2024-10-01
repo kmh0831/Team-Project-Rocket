@@ -1,4 +1,4 @@
-# modules/bastion/main.tf
+# Bastion 인스턴스 생성
 resource "aws_instance" "bastion" {
   ami                    = var.bastion_ami
   instance_type          = var.bastion_instance_type

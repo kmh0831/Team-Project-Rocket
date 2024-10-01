@@ -26,17 +26,3 @@ output "db_private_subnet_ids" {
   description = "DB Private Subnet IDs"
   value       = [for subnet in aws_subnet.db_private : subnet.id]
 }
-
-output "private_subnet_ids" {
-  description = "List of private subnet IDs for the EKS VPC"
-  value       = [for s in aws_subnet.private : s.id]
-}
-
-output "public_subnet_ids" {
-  description = "List of public subnet IDs for the EKS VPC"
-  value       = [for s in aws_subnet.public : s.id]
-}
-
-output "db_route_table_ids" {
-  value = aws_route_table.db_private[*].id
-}

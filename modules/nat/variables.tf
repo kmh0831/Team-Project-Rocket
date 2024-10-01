@@ -38,3 +38,9 @@ variable "security_group_id" {
   description = "The security group ID for the NAT instance"
   type        = string
 }
+
+variable "nat_instance_private_ips" {
+  description = "Private IP addresses for NAT instances"
+  type        = list(string)
+  default     = [] # 기본값을 빈 리스트로 설정
+}

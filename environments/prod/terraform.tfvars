@@ -57,7 +57,4 @@ vpc_config = {
 nat_security_group_ingress_cidr_blocks = ["0.0.0.0/0"]
 nat_security_group_egress_cidr_blocks  = ["0.0.0.0/0"]
 
-skip_final_snapshot = true
-final_snapshot_identifier = null
-
-multi_az = false
+availability_zones = ["ap-northeast-2a", "ap-northeast-2b"]

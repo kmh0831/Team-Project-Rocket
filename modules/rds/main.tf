@@ -1,5 +1,3 @@
-# modules/rds/main.tf
-
 resource "aws_db_instance" "rds" {
   identifier              = var.db_identifier
   db_name                 = var.db_name
@@ -14,7 +12,9 @@ resource "aws_db_instance" "rds" {
   vpc_security_group_ids  = var.vpc_security_group_ids
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet.name
 
+  # RDS 인스턴스에서만 적용
   skip_final_snapshot     = var.skip_final_snapshot
+  final_snapshot_identifier = var.final_snapshot_identifier
 
   tags = {
     Name = var.db_identifier
@@ -23,7 +23,7 @@ resource "aws_db_instance" "rds" {
 
 resource "aws_db_subnet_group" "rds_subnet" {
   name       = "${var.db_identifier}-subnet-group"
-  subnet_ids = var.subnet_ids
+  subnet_ids = var.subnet_ids  # 여전히 모듈 호출 시 전달된 값 사용
 
   tags = {
     Name = "${var.db_identifier}-subnet-group"

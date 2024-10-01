@@ -1,9 +1,7 @@
-# modules/security_groups/main.tf
-
 resource "aws_security_group" "nat_sg" {
   name        = "NAT-SG"
   vpc_id      = var.vpc_id
-  description = "Allow traffic to NAT instances"
+  description = "Security group for NAT instances"
 
   ingress {
     from_port   = 0
@@ -57,7 +55,7 @@ resource "aws_security_group" "eks_cluster_sg" {
   description = "Security group for EKS Cluster"
   vpc_id      = var.vpc_id
 
-    ingress {
+  ingress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -72,7 +70,7 @@ resource "aws_security_group" "eks_cluster_sg" {
   }
 
   tags = {
-    Name = "EKS-cluster-sg"
+    Name = "eks-cluster-sg"
   }
 }
 
@@ -97,7 +95,7 @@ resource "aws_security_group" "eks_node_sg" {
   }
 
   tags = {
-    Name = "EKS-node-sg"
+    Name = "eks-node-sg"
   }
 }
 
