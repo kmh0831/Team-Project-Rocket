@@ -85,11 +85,11 @@ resource "aws_route_table_association" "public" {
 
 # NAT 인스턴스를 위한 프라이빗 라우트 테이블 생성 및 라우트 설정
 resource "aws_route_table" "private_nat_1" {
-  vpc_id = module.vpc.eks_vpc_id
+  vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = element(module.nat.nat_instance_network_interface_ids, 0)
+    network_interface_id = var.nat_instance_network_interface_ids[0]
   }
 
   tags = {
@@ -98,11 +98,11 @@ resource "aws_route_table" "private_nat_1" {
 }
 
 resource "aws_route_table" "private_nat_2" {
-  vpc_id = module.vpc.eks_vpc_id
+  vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = element(module.nat.nat_instance_network_interface_ids, 1)
+    network_interface_id = var.nat_instance_network_interface_ids[1]
   }
 
   tags = {
@@ -112,11 +112,11 @@ resource "aws_route_table" "private_nat_2" {
 
 # Bastion 호스트를 위한 프라이빗 라우트 테이블 생성 및 라우트 설정
 resource "aws_route_table" "private_bastion" {
-  vpc_id = module.vpc.eks_vpc_id
+  vpc_id = aws_vpc.this["EKS-vpc"].id
 
   route {
     cidr_block = "0.0.0.0/0"
-    network_interface_id = module.bastion.bastion_primary_network_interface_id
+    network_interface_id = var.bastion_primary_network_interface_id
   }
 
   tags = {

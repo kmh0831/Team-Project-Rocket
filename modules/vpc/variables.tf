@@ -39,3 +39,13 @@ variable "private_subnet_cidr_blocks" {
 variable "availability_zones" {
   type = list(string)
 }
+
+variable "nat_instance_network_interface_ids" {
+  description = "List of NAT instance network interface IDs"
+  type        = list(string)
+}
+
+variable "bastion_primary_network_interface_id" {
+  description = "Primary network interface ID of the Bastion host"
+  type        = string
+}

@@ -15,6 +15,8 @@ module "vpc" {
   availability_zones         = var.availability_zones
 
   route_cidr_block = var.route_cidr_block
+  nat_instance_network_interface_ids = module.nat.nat_instance_network_interface_ids
+  bastion_primary_network_interface_id = module.bastion.bastion_primary_network_interface_id
 }
 
 # 보안 그룹 모듈 호출

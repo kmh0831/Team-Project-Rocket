@@ -36,8 +36,3 @@ output "eks_private_route_table_ids" {
   description = "EKS VPC의 프라이빗 라우트 테이블 ID 목록"
   value       = [aws_route_table.private_nat_1.id, aws_route_table.private_nat_2.id]
 }
-
-output "db_private_route_table_ids" {
-  description = "DB VPC의 프라이빗 라우트 테이블 ID 목록"
-  value       = [for rt in aws_route_table.db_private : rt.id]
-}
