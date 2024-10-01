@@ -3,17 +3,20 @@ provider "aws" {
 }
 
 # VPC 모듈 호출
-module "vpc_peering" {
-  source = "../../modules/vpc_peering"
+module "vpc" {
+  source = "../../modules/vpc"
 
-  vpc_id_a     = module.vpc.eks_vpc_id
-  vpc_id_b     = module.vpc.db_vpc_id
-  peering_name = var.peering_name
-  eks_vpc_cidr = var.eks_vpc_cidr_block
-  db_vpc_cidr  = var.db_vpc_cidr_block
+  vpc_config           = var.vpc_config
+  enable_dns_support   = var.enable_dns_support
+  enable_dns_hostnames = var.enable_dns_hostnames
 
-  eks_private_route_table_ids = module.vpc.eks_private_route_table_ids
-  db_private_route_table_ids  = module.vpc.db_private_route_table_ids
+  public_subnet_cidr_blocks  = var.eks_public_subnets
+  private_subnet_cidr_blocks = var.eks_private_subnets
+  availability_zones         = var.availability_zones
+
+  route_cidr_block = var.route_cidr_block
+  nat_instance_network_interface_ids = module.nat.nat_instance_network_interface_ids
+  bastion_primary_network_interface_id = module.bastion.bastion_primary_network_interface_id
 }
 
 # 보안 그룹 모듈 호출
@@ -104,7 +107,6 @@ module "vpc_peering" {
   eks_vpc_cidr = var.eks_vpc_cidr_block
   db_vpc_cidr  = var.db_vpc_cidr_block
 
-  # 추가된 부분: 필요한 서브넷 및 라우트 테이블 ID 전달
   eks_private_route_table_ids = module.vpc.eks_private_route_table_ids
   db_private_route_table_ids  = module.vpc.db_private_route_table_ids
 }
