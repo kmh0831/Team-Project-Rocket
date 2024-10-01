@@ -136,7 +136,13 @@ resource "aws_route_table_association" "private_nat_2_assoc" {
 }
 
 resource "aws_route_table_association" "private_bastion_assoc" {
-  subnet_id      = aws_subnet.private["2"].id
+  for_each = {
+    for idx, subnet in aws_subnet.private :
+    idx => subnet
+    if idx == "2" || idx == "3"  # 서브넷 인덱스 2와 3에 연결
+  }
+
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.private_bastion.id
 }
 

@@ -21,17 +21,9 @@ resource "aws_instance" "nat" {
 resource "aws_eip" "nat_eip" {
   count  = length(var.nat_subnet_ids)
   domain = "vpc"
+  instance = aws_instance.nat[count.index].id
 
   tags = {
     Name = "Nat-EIP-${count.index + 1}"
   }
-}
-
-# EIP와 NAT 인스턴스 연결
-resource "aws_eip_association" "nat_eip_assoc" {
-  count         = length(var.nat_subnet_ids)
-  
-  # NAT 인스턴스와 EIP를 정확히 매핑
-  instance_id   = aws_instance.nat[count.index].id
-  allocation_id = aws_eip.nat_eip[count.index].id
 }
