@@ -58,3 +58,5 @@ nat_security_group_ingress_cidr_blocks = ["0.0.0.0/0"]
 nat_security_group_egress_cidr_blocks  = ["0.0.0.0/0"]
 
 availability_zones = ["ap-northeast-2a", "ap-northeast-2b"]
+
+db_allowed_cidr = "172.16.0.0/16" # 예시로 EKS VPC의 CIDR 블록을 허용
