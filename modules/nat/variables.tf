@@ -8,10 +8,6 @@ variable "nat_subnet_ids" {
   type = list(string)
 }
 
-variable "nat_instance_private_ips" {
-  type = list(string)
-}
-
 variable "nat_ami" {
   type = string
 }
